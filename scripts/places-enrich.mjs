@@ -1,7 +1,7 @@
 /* Resolves every researched place against Google Places, and applies the
  * owner's quality floor with Google's own numbers.
  *
- *   node --env-file=.env scripts/places-enrich.mjs [sources/entries/research/*.json]
+ *   node --env-file=.env scripts/places-enrich.mjs [sources/entries/research/*.json] [sources/entries/osm-places.csv]
  *
  * Needs GOOGLE_MAPS_KEY (in .env, which is not committed) with the Places API
  * (New) enabled. For each row that is a venue it runs one Text Search near
@@ -131,8 +131,29 @@ const report = [['file', 'n', 'a', 'outcome', 'reason', 'google_name', 'rating',
 const tally = { kept: 0, exempt: 0, dropped: 0 };
 mkdirSync(OUT_DIR, { recursive: true });
 
+/* The OSM sweep is a CSV. Only the rows the merge keeps are checked: it drops
+   OSM clinics and hospitals other than dentists (they come from research), so
+   looking those up would only cost money. */
+function readCsv(text) {
+  const rows = []; let row = [], f = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true; else if (c === ',') { row.push(f); f = ''; }
+    else if (c === '\n') { row.push(f); rows.push(row); row = []; f = ''; } else if (c !== '\r') f += c;
+  }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  const [h, ...body] = rows.filter((r) => r.length > 1);
+  return body.map((r) => Object.fromEntries(h.map((k, i) => [k, r[i] ?? ''])));
+}
+const readRows = (file) => {
+  const text = readFileSync(path.resolve(ROOT, file), 'utf8');
+  if (!file.endsWith('.csv')) return JSON.parse(text);
+  return readCsv(text).filter((r) => !(['clinic', 'hospital'].includes(r.g) && r.s !== 'Dental clinic'));
+};
+
 for (const file of files) {
-  const rows = JSON.parse(readFileSync(path.resolve(ROOT, file), 'utf8'));
+  const rows = readRows(file);
   const out = [];
   let i = 0;
   async function worker() {
@@ -167,7 +188,7 @@ for (const file of files) {
   }
   await Promise.all(Array.from({ length: 4 }, worker));
   saveCache();
-  writeFileSync(path.join(OUT_DIR, path.basename(file)), JSON.stringify(out, null, 1) + '\n');
+  writeFileSync(path.join(OUT_DIR, path.basename(file).replace(/\.csv$/, '.json')), JSON.stringify(out, null, 1) + '\n');
   console.log(`${path.basename(file)}: ${rows.length} rows → ${out.length} kept or exempt`);
 }
 

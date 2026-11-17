@@ -182,7 +182,7 @@ function plainHours(raw) {
 /* ---------- build ---------- */
 const PRIVATE = /^(private|no|customers|permit)$/;
 /* Mapped as gardens and grounds, but behind a gate. */
-const NOT_PUBLIC = /\b(society|soc\.?|chs|co-?op\w*|housing|residency|residence|apartments?|towers?|complex|school|vidya|vidyalaya|college|university|academy|hostel|club|gymkhana|association|hotel|back area|compound|police|parade ground|chapel|church|convent|canossa|holy cross|st\.?|saint|aquarium|plaza|chowk|building|cmda|tnhb|kendriya|matriculation|nagar association)\b|^(back|front) ground$/i;
+const NOT_PUBLIC = /\b(society|soc\.?|chs|co-?op\w*|housing|residency|residence|apartments?|towers?|complex|school|vidya|vidyalaya|college|university|academy|hostel|club|gymkhana|association|hotel|back area|compound|police|parade ground|chapel|church|convent|canossa|holy cross|st\.?|saint|aquarium|plaza|chowk|building|cmda|tnhb|kendriya|matriculation|nagar association|vacant|reserved site|osr land)\b|^(back|front) ground$/i;
 /* Names that say nothing but what the thing is. */
 const GENERIC = /^(gcc\s+|corporation\s+|municipal\s+)?(park|garden|poonga|udyan|play\s*ground|ground|open space|recreation ground)(\s*(no\.?\s*)?\d+)?$/i;
 /* "abhinav nagar garden" -> "Abhinav Nagar Garden"; names with any capitals stay as mapped. */

@@ -47,12 +47,16 @@ describes the code accurately; where it names Bengaluru's data, read Chennai's.
   `GOOGLE_MAPS_KEY`, never committed) and keeps only those above 4.0 with 20+
   reviews, with Google's pin and Maps link. It writes
   `sources/entries/enriched/*.json`, which is what the merge reads, and lists
-  every drop and why in `reports/places-enrich.csv`. Research passes can find
+  every drop and why in `reports/places-enrich.csv`. The OSM sweep goes
+  through the same check (its usable rows only), so every pinned place on
+  the map has cleared the floor on Google's numbers. The second-pass files
+  (`mind-2.json`, `eat-2.json`) were found on Google with
+  `scripts/places-discover.mjs` and already carry Google's figures. Research passes can find
   candidates the same way with `scripts/places-discover.mjs`. The full build:
 
   ```bash
-  node --env-file=.env scripts/places-enrich.mjs
-  node scripts/merge-places.mjs sources/entries/enriched/*.json sources/entries/osm-places.csv
+  node --env-file=.env scripts/places-enrich.mjs sources/entries/research/{care-clinics,care-labs,eat,gear-communities,mind,play,workout}.json sources/entries/osm-places.csv
+  node scripts/merge-places.mjs sources/entries/enriched/{care-clinics,care-labs,eat,gear-communities,mind,play,workout}.json sources/entries/research/mind-2.json sources/entries/research/eat-2.json sources/entries/enriched/osm-places.json
   node scripts/ingest-entries.mjs
   node scripts/ingest-routes.mjs
   node scripts/snap-routes.mjs
