@@ -2757,7 +2757,8 @@
   "map_eligible": "yes",
   "perk_partner": "yes",
   "src_url": "https://www.apollopharmacy.in/medical-stores/chennai/x-14587",
-  "notes": "Store listed on the Apollo Pharmacy store locator (store ID 14587); coordinates from it. Google rating not found. Apollo Pharmacy is a Plum Perks partner. Hours from the locator; days not stated, assumed all week, confirm."
+  "notes": "Store listed on the Apollo Pharmacy store locator (store ID 14587); coordinates from it. Google rating not found. Apollo Pharmacy is a Plum Perks partner. Hours from the locator; days not stated, assumed all week, confirm.; Google matched the Sivaprakasam Street store, a different branch; that match is refused",
+  "reject_place_id": "ChIJPRPpM6hnUjoRJV89M7nQlsI"
  },
  {
   "category": "Check your health",

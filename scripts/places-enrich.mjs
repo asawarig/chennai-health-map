@@ -13,6 +13,8 @@
  *             Maps link replace ours; "Google 4.6 (312)" goes into notes.
  *   dropped   below the floor, permanently closed, or Google found nothing
  *             that matches. Never silently: each is listed in the report.
+ *   refused   a row may name a Google listing it must not match
+ *             (reject_place_id) — found once to be another branch.
  *   exempt    rows that are not venues — communities, delivery-only kitchens
  *             (map_eligible "no") — pass through unchanged.
  *
@@ -84,7 +86,15 @@ const branchOf = (n) => (String(n || '').split(/\s+[—–]\s+/)[1] || '').trim(
 const inArea = (area, address) => {
   const w = tokens(area).filter((x) => !['nagar', 'road', 'east', 'west', 'north', 'south', 'main'].includes(x));
   const ad = norm(address).replace(/[^a-z0-9]/g, '');
-  return !w.length || w.some((x) => ad.includes(x));
+  /* "T. Nagar", "K.K. Nagar", "R.A. Puram" have no word left once the
+     initials and "nagar" go, and an empty list used to pass anything —
+     which matched the T. Nagar row to the Adyar branch. Compare the
+     whole name, run together, instead. */
+  if (!w.length) {
+    const whole = norm(area).replace(/[^a-z0-9]/g, '');
+    return !whole || ad.includes(whole);
+  }
+  return w.some((x) => ad.includes(x));
 };
 const metres = (lat1, lon1, lat2, lon2) => Math.hypot((lon2 - lon1) * 108500, (lat2 - lat1) * 110570);
 const NEAR_M = 1500;
@@ -133,7 +143,7 @@ for (const file of files) {
       const ourLat = parseFloat(r.lat), ourLon = parseFloat(r.lon);
       const near = (x) => !(ourLat && ourLon) || metres(ourLat, ourLon, x.location.latitude, x.location.longitude) <= NEAR_M;
       const branch = branchOf(r.n);
-      const p = places.find((x) => sameName(r.n, x.displayName?.text) && near(x) && (!branch || inArea(branch, x.formattedAddress) || inArea(r.a, x.formattedAddress)));
+      const p = places.find((x) => x.id !== r.reject_place_id && sameName(r.n, x.displayName?.text) && near(x) && (!branch || [branch, r.a].some((a) => inArea(a, `${x.formattedAddress} ${x.displayName?.text || ''}`))));
       const say = (outcome, reason) => report.push([path.basename(file), r.n, r.a, outcome, reason,
         p?.displayName?.text || places[0]?.displayName?.text || '', p?.rating ?? '', p?.userRatingCount ?? '', p?.businessStatus || '', p?.googleMapsUri || '']);
       if (!p) { tally.dropped++; say('dropped', places.length ? 'no Google result with a matching name' : 'not found on Google'); continue; }

@@ -1149,7 +1149,8 @@
   "map_eligible": "yes",
   "perk_partner": "",
   "src_url": "https://www.terraearthfood.com/pages/contact-us",
-  "notes": "No rating found. Listed only in the footer store list on Terra's own site; confirm on Google Maps."
+  "notes": "No rating found. Listed only in the footer store list on Terra's own site; confirm on Google Maps.; Google matched the Alwarpet store, a different branch; that match is refused",
+  "reject_place_id": "ChIJ50SCCMpnUjoRsP6lT5TTa0w"
  },
  {
   "category": "Eat healthy",
@@ -1540,7 +1541,7 @@
   "g": "healthy",
   "s": "Vegan café",
   "n": "No Oil No Boil Restaurant",
-  "a": "Pallikaranai",
+  "a": "Taramani",
   "ad": "186, Velachery Road, near Oil Mill bus stop, Chennai 600100",
   "lat": "",
   "lon": "",
@@ -1557,7 +1558,7 @@
   "map_eligible": "yes",
   "perk_partner": "",
   "src_url": "https://spinach.guide/venues/no-oil-no-boil-restaurant-179169/ | https://inmathi.com/2023/07/04/no-oil-no-boil-raw-food-restaurant-serves-superfoods/78596/ | https://www.happycow.net/reviews/no-oil-no-boil-restaurant-chennai-380688",
-  "notes": "No Google rating found (spinach.guide shows only its own food score of 4.8). Inmathi (July 2023) describes it as on the city outskirts in Pallikaranai; the address (600100, Oil Mill bus stop on Velachery Road) may be Kovilambakkam/Medavakkam side, so confirm the neighbourhood. The listed business.site website may be dead as Google retired those sites in 2024; left in as found."
+  "notes": "No Google rating found (spinach.guide shows only its own food score of 4.8). Inmathi (July 2023) describes it as on the city outskirts in Pallikaranai; the address (600100, Oil Mill bus stop on Velachery Road) may be Kovilambakkam/Medavakkam side, so confirm the neighbourhood. The listed business.site website may be dead as Google retired those sites in 2024; left in as found.; area from Google, which lists it on Tharamani Link Road"
  },
  {
   "category": "Eat healthy",
