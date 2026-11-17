@@ -112,7 +112,9 @@ const num = (v) => (v === '' || v == null || Number.isNaN(Number(v)) ? null : Nu
 /* Beyond GCC, Tambaram and Avadi: the OMR past Navalur, the ECR past
    Uthandi, and the towns round the edge. PIN codes 601–603 and 631 are
    Tiruvallur, Kanchipuram and Chengalpattu districts. */
-const OUTSIDE = /\b(601\d\d\d|602\d\d\d|603\d\d\d|631\d\d\d)\b|\b(kelambakkam|siruseri|padur|navalur|thalambur|kovalam|muttukadu|mahabalipuram|mamallapuram|guduvanchery|maraimalai nagar|chengalpattu|sriperumbudur|oragadam|ponneri|gummidipoondi|tiruvallur|thiruvallur|kanchipuram|kancheepuram)\b/i;
+const OUTSIDE = /\b(601\d\d\d|602\d\d\d|603\d\d\d|631\d\d\d)\b|\b(kelambakkam|siruseri|padur|navalur|thalambur|kovalam|muttukadu|mahabalipuram|mamallapuram|guduvanchery|maraimalai nagar|chengalpattu|sriperumbudur|oragadam|ponneri|gummidipoondi)\b/i;
+/* Roads named after the towns they lead to; a town's name inside one says nothing. */
+const ROAD_NAMED = /\b(old\s+)?(mahabalipuram|mamallapuram|thiruvallur|tiruvallur|kanchipuram|muttukadu|kelambakkam|chengalpattu|ponneri|gummidipoondi)\s+(high\s+)?(road|rd|salai|trunk road)\b/gi;
 const OSM_SKIP = new Set(['clinic', 'hospital']);
 const stats = { keptPin: 0, closed: 0, sharedPin: 0, spiritual: 0, farPins: 0, osmSkipped: 0, outsideAd: 0, noG: 0, badCoords: 0, dupes: 0, geocoded: 0, geoMiss: 0, areaFilled: 0 };
 rows = rows.filter((r) => {
@@ -132,11 +134,22 @@ rows = rows.filter((r) => {
   r.out = r.out === '1' || r.out === 1 ? 1 : 0;
   /* An address past the city's edge (see OUTSIDE) is outside whatever its
      pin says. GCC, Tambaram and Avadi are all in. */
-  if (!r.out && OUTSIDE.test(r.ad || '')) { stats.outsideAd++; console.log(`  skipped (address outside the city): ${r.n} — ${r.ad}`); return false; }
+  /* The address test is a fallback for rows with no pin. A pin inside the city
+     outranks it: town names turn up inside in-city addresses — "Old
+     Mahabalipuram Road" is OMR, "Madras Thiruvallur High Road" runs through
+     Ambattur, Tambaram addresses still name Kanchipuram district — and the
+     test dropped 15 real places that way. */
+  const pinIn = num(r.lat) != null && num(r.lon) != null && inCity(num(r.lon), num(r.lat));
+  if (!r.out && !pinIn && OUTSIDE.test(String(r.ad || '').replace(ROAD_NAMED, ' '))) { stats.outsideAd++; console.log(`  skipped (address outside the city): ${r.n} — ${r.ad}`); return false; }
   let lat = num(r.lat), lon = num(r.lon);
   /* Swapped coordinates are a common slip: Chennai is about 13 N, 80.2 E. */
   if (lat != null && lon != null && lat > 60 && lon < 30) [lat, lon] = [lon, lat];
-  if (lat != null && lon != null && !r.out && !inCity(lon, lat)) {
+  /* Google's pin for this exact place, just past the city line (Porur,
+     Vanagaram, Perungalathur): the place is there, and a lookup by address
+     only moves it somewhere wrong — it shifted seven such pins 1–4 km. */
+  if (lat != null && lon != null && !r.out && !inCity(lon, lat) && r.google_place_id) {
+    if (!/just outside the city outline/.test(r.notes || '')) r.notes = [r.notes, 'Google pin is just outside the city outline'].filter(Boolean).join('; ');
+  } else if (lat != null && lon != null && !r.out && !inCity(lon, lat)) {
     stats.badCoords++;
     r.notes = [r.notes, `coordinates ${lat},${lon} were outside the city; re-looked up`].filter(Boolean).join('; ');
     lat = lon = null;
@@ -149,6 +162,21 @@ rows = rows.filter((r) => {
 const key = (n) => n.toLowerCase()
   .replace(/\b(the|pvt|ltd|private|limited|chennai|centre|center|clinic|studio|cafe|café)\b/g, ' ')
   .replace(/[^a-z0-9]+/g, '');
+const gmId = (x) => (String(x.gm || '').match(/cid=(\d+)/) || [])[1] || x.google_place_id || '';
+const NAME_GENERIC = new Set(['sports', 'sport', 'fitness', 'health', 'healthcare', 'store', 'stores', 'centre', 'center',
+  'clinic', 'clinics', 'studio', 'academy', 'laboratory', 'diagnostics', 'chennai', 'india', 'organic', 'hospital', 'pharmacy',
+  'care', 'dental', 'dentist', 'smile', 'smiles', 'eye', 'physio', 'physiotherapy', 'rehab', 'lab', 'labs', 'diagnostic',
+  'scans', 'foods', 'food', 'kitchen', 'juice', 'yoga', 'dance', 'martial', 'arts', 'club', 'court', 'courts', 'turf',
+  'arena', 'badminton', 'football', 'cricket', 'swimming', 'pool', 'gym', 'gyms', 'wellness', 'mind', 'apollo', 'speciality',
+  'multispeciality', 'super', 'nagar', 'road', 'main', 'street']);
+/* Neighbourhood names are in half the names in a district ("… — Adyar"), so
+   sharing one says nothing about being the same place. */
+const AREA_WORDS = new Set(rows.flatMap((x) => String(x.a || '').toLowerCase().split(/[^a-z0-9]+/)).filter((x) => x.length >= 4));
+const sharesWord = (a, b) => {
+  const w = (n) => new Set(String(n).toLowerCase().split(/[^a-z0-9]+/).filter((x) => x.length >= 4 && !NAME_GENERIC.has(x) && !AREA_WORDS.has(x)));
+  const A = w(a), B = w(b);
+  return [...A].some((x) => B.has(x));
+};
 const merged = [];
 const FILL = ['a', 'ad', 'lat', 'lon', 'gm', 'w', 'ig', 'd', 'p', 'b', 't', 'tg'];
 for (const r of rows) {
@@ -160,12 +188,25 @@ for (const r of rows) {
        one name with and without its branch, at the same spot. */
     const bare = (n) => key(String(n).replace(/\s+—\s+.*$/, ''));
     if (m.g === r.g && m.lat != null && r.lat != null && bare(m.n) === bare(r.n) && metres([m.lon, m.lat], [r.lon, r.lat]) < 150) return true;
+    /* One Google listing is one place, whatever sport each row was found under. */
+    if (gmId(m) && gmId(m) === gmId(r)) return true;
+    /* The OSM sweep names a place its own way ("Decathlon Sports - OMR Perungudi",
+       "Lister Metropolis Laboratory"): a researched row within 100 m sharing a
+       real word of the name is the same place. */
+    if ((r._osm || m._osm) && !(r._osm && m._osm) && m.g === r.g && m.lat != null && r.lat != null
+      && metres([m.lon, m.lat], [r.lon, r.lat]) < 100 && sharesWord(m.n, r.n)) return true;
     if (key(m.n) !== k) return false;
     if (m.lat != null && r.lat != null) return metres([m.lon, m.lat], [r.lon, r.lat]) < 300;
     return (m.a || '').toLowerCase() === (r.a || '').toLowerCase() || !m.a || !r.a;
   });
   if (!twin) { merged.push(r); continue; }
   stats.dupes++;
+  /* A badminton row and a turf row on one listing are one multi-sport venue. */
+  if (gmId(twin) && gmId(twin) === gmId(r) && twin.g !== r.g && twin.category === 'Play' && r.category === 'Play') {
+    twin.g = 'multisport'; twin.s = 'Multi-sport centre';
+    twin.n = String(twin.n).replace(/\s+—\s+(badminton|turf|football|cricket|tennis|pickleball|padel)\b.*$/i, '');
+    twin.tg = [...new Set([...String(twin.tg || '').split('|'), ...String(r.tg || '').split('|')].filter(Boolean))].join('|');
+  }
   FILL.forEach((f) => { if ((twin[f] == null || twin[f] === '') && r[f] != null && r[f] !== '') twin[f] = r[f]; });
   if (r.src_url && !(twin.src_url || '').includes(r.src_url)) twin.src_url = [twin.src_url, r.src_url].filter(Boolean).join(' | ');
 }
