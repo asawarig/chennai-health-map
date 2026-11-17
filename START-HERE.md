@@ -1,4 +1,4 @@
-# Running the Mumbai Wellness Map on your machine
+# Running the Chennai Wellness Map on your machine
 
 This is an Astro app that renders every page on a server — it is not a folder of
 HTML files, so opening `index.html` in a browser will not work. You need Node,
@@ -40,14 +40,13 @@ Leave that terminal window open — it is the server. `Ctrl-C` stops it.
 
 ## What you should see
 
-An intro card over the map of Mumbai. Click **Show me** and you get the map
-with BMC's six zones in colour, the Mumbai Metro lines and their stations.
+An intro card over the map of Chennai. Click **Show me** and you get the map
+with six regions in colour (four groups of GCC zones, Tambaram and Avadi), the
+Chennai Metro lines and their stations, the parks, and the researched places
+and routes.
 
-There are **no places on it yet**. This map was copied from the Bengaluru one,
-and the Bengaluru places, routes, parks, communities and themed days were
-cleared out so they can be replaced with Mumbai's. See *Changing the data*
-below. The artwork (hero, stamp, logos, vignettes) is still Bengaluru's, as a
-placeholder.
+The artwork (hero, stamp, vignettes, share image) is still a placeholder from
+the earlier maps; see README.md, "Chennai: what changed".
 
 ## If something goes wrong
 

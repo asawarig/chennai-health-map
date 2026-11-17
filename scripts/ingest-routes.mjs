@@ -9,14 +9,14 @@
  * has nothing to draw yet and waits for the snap. Rows whose geometry status
  * starts "Hold" get a pin and no line. Re-run whenever the CSV changes:
  *
- *   node scripts/ingest-routes.mjs [sources/routes/wellness-map-routes-v2.csv]
+ *   node scripts/ingest-routes.mjs [sources/routes/chennai-routes.csv]
  */
 import { ZONE_KEYS, RG_ALIAS } from './zones.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const CSV = path.resolve(ROOT, process.argv[2] || 'sources/routes/wellness-map-routes-v2.csv');
+const CSV = path.resolve(ROOT, process.argv[2] || 'sources/routes/chennai-routes.csv');
 const SOURCE = path.basename(CSV, '.csv');
 const ENTRIES = path.join(ROOT, 'src/data/entries.json');
 const ROUTES = path.join(ROOT, 'src/data/routes.json');
@@ -125,7 +125,7 @@ for (const row of csv) {
     if (a[0] !== b[0] || a[1] !== b[1]) line.push([...a]);
   }
   const km = parseFloat(row.dist_km) || +lengthKm(line).toFixed(2);
-  const area = (row.a || parent?.a || '').trim() || 'Bengaluru';
+  const area = (row.a || parent?.a || '').trim() || 'Chennai';
   const rg = parent?.rg || RG_FALLBACK[row.rg] || '';
 
   const entry = {
@@ -186,11 +186,11 @@ for (const row of csv) {
 }
 
 const mergedEntries = [
-  ...entries.filter((e) => !String(e.id).startsWith('BLR-RT-')),
+  ...entries.filter((e) => !String(e.id).startsWith('CHN-RT-')),
   ...newEntries,
 ];
 routes.features = [
-  ...routes.features.filter((f) => !String(f.properties?.id || f.id).startsWith('BLR-RT-')),
+  ...routes.features.filter((f) => !String(f.properties?.id || f.id).startsWith('CHN-RT-')),
   ...newRoutes,
 ];
 

@@ -8,7 +8,7 @@
  * an editor can tell them from hand-researched rows and fix a wrong one at
  * the source.
  *
- * Takes only named, non-private objects inside the BMC area (mask.json).
+ * Takes only named, non-private objects inside the GCC area (mask.json).
  * Each row's neighbourhood (`a`) is the nearest OSM suburb / neighbourhood
  * within 2 km, unless the object carries its own addr:suburb.
  *
@@ -22,7 +22,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { CITY_RELS } from './city.mjs';
 
-const UA = 'mumbai-wellness-map/1.0 (places build script)';
+const UA = 'chennai-wellness-map/1.0 (places build script)';
 const OUT = process.argv[2] || fileURLToPath(new URL('../sources/entries/osm-places.csv', import.meta.url));
 
 const OVERPASS = [
@@ -146,7 +146,7 @@ function areaNear(pt) {
 }
 const address = (t) => [
   [t['addr:housenumber'], t['addr:housename']].filter(Boolean).join(', '),
-  t['addr:street'], t['addr:suburb'] || t['addr:neighbourhood'], t['addr:city'] || 'Mumbai', t['addr:postcode'],
+  t['addr:street'], t['addr:suburb'] || t['addr:neighbourhood'], t['addr:city'] || 'Chennai', t['addr:postcode'],
 ].filter(Boolean).join(', ');
 const PRIVATE = /^(private|no|customers|members|permit)$/;
 const NOT_PUBLIC = /\b(society|chs|co-?op\w*|housing|residency|apartments?|towers?|school|vidyalaya|college|hostel)\b/i;

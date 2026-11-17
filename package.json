@@ -1,9 +1,9 @@
 {
-  "name": "mumbai-wellness-map",
+  "name": "chennai-wellness-map",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "An interactive map of places, routes, clinics, kitchens and communities for looking after yourself in Mumbai. Built by the marketing team at Plum.",
+  "description": "An interactive map of places, routes, clinics, kitchens and communities for looking after yourself in Chennai. Built by the marketing team at Plum.",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

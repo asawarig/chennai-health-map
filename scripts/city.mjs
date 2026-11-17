@@ -1,17 +1,19 @@
 /* The OpenStreetMap areas the map covers, shared by every build script.
  *
- * Mumbai (BMC) has no single relation: it is Mumbai City District plus Mumbai
- * Suburban District. Navi Mumbai (NMMC) is one relation, across Thane Creek;
- * Thane (TMC) is one more, north of both; Mira-Bhayandar (MBMC) is north of
- * Dahisar and Gorai.
- * Kharghar, Panvel and Ulwe are Panvel Municipal Corporation, so they are
- * not in it.
+ * Greater Chennai Corporation is one relation (1766358, admin_level 8), with
+ * its 15 zones at admin_level 9 and 200 wards at 10. Tambaram and Avadi City
+ * Municipal Corporations are not mapped in OSM as areas of their own, so their
+ * taluks stand in for them: Tambaram taluk (Chengalpattu district) and Avadi
+ * taluk (Thiruvallur district). Each taluk is a little larger than its
+ * corporation (it takes in the panchayats round the edge), which only means the
+ * map reaches slightly further than the corporations do.
  */
 export const CITY_RELS = [
-  7964376, // Mumbai City District
-  7964375, // Mumbai Suburban District
-  13180880, // Navi Mumbai Municipal Corporation
-  7120000, // Thane Municipal Corporation (Thane, Kalwa, Mumbra, Diva)
-  13180677, // Mira-Bhayandar Municipal Corporation (Mira Road, Bhayandar, Uttan)
+  1766358, // Greater Chennai Corporation
+  10326121, // Tambaram taluk (stands in for Tambaram City Municipal Corporation)
+  21492307, // Avadi taluk (stands in for Avadi City Municipal Corporation)
 ];
-export const CITY_NAME = 'Mumbai, Navi Mumbai, Thane and Mira-Bhayandar (BMC, NMMC, TMC and MBMC)';
+export const CITY_NAME = 'Chennai, Tambaram and Avadi (GCC and the Tambaram and Avadi corporations)';
+export const CITY_SHORT = 'Chennai';
+/* Prefix for new entry ids (CHN-0001…). */
+export const ID_PREFIX = 'CHN';

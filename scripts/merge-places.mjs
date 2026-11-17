@@ -1,5 +1,5 @@
-/* Merges researched rows and the OpenStreetMap sweep into the Mumbai places
- * sheet, sources/entries/mumbai-places.csv, which ingest-entries.mjs reads.
+/* Merges researched rows and the OpenStreetMap sweep into the Chennai places
+ * sheet, sources/entries/chennai-places.csv, which ingest-entries.mjs reads.
  *
  *   node scripts/merge-places.mjs <file.csv|file.json> [...]
  *
@@ -19,7 +19,7 @@
  *   - missing area: the nearest OSM neighbourhood (.cache/osm-neighbourhoods.json,
  *     written by osm-places.mjs)
  *   - id: kept from the existing sheet where the name and sub-category match,
- *     so links to a place survive a rerun; new rows get the next MUM-number.
+ *     so links to a place survive a rerun; new rows get the next CHN-number.
  *
  * Also rewrites the Communities tab (src/data/community-categories.json) from
  * the Communities rows: each row's `notes` starts with its tab category.
@@ -32,9 +32,9 @@ import { NOT_WELLNESS, CLOSED } from './exclusions.mjs';
 import { decodePlusCode, plusCodeIn } from './pluscode.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const OUT = path.join(ROOT, 'sources/entries/mumbai-places.csv');
+const OUT = path.join(ROOT, 'sources/entries/chennai-places.csv');
 const CACHE = path.join(ROOT, '.cache/geocode.json');
-const UA = 'mumbai-wellness-map/1.0 (places merge script)';
+const UA = 'chennai-wellness-map/1.0 (places merge script)';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const G_CATEGORY = {
@@ -109,7 +109,10 @@ const metres = (a, b) => Math.hypot((a[0] - b[0]) * 104900, (a[1] - b[1]) * 1106
 const num = (v) => (v === '' || v == null || Number.isNaN(Number(v)) ? null : Number(v));
 
 /* ---------- tidy ---------- */
-const OUTSIDE = /\b(4012\d\d|4013\d\d|4102\d\d|4107\d\d)\b|\b(bhiwandi|kalyan(?!\s*(jewel|nagar|kendra))|dombivli|ambernath|badlapur|ulhasnagar|kharghar|kamothe|kalamboli|ulwe|taloja|vasai|virar)\b/i;
+/* Beyond GCC, Tambaram and Avadi: the OMR past Navalur, the ECR past
+   Uthandi, and the towns round the edge. PIN codes 601–603 and 631 are
+   Tiruvallur, Kanchipuram and Chengalpattu districts. */
+const OUTSIDE = /\b(601\d\d\d|602\d\d\d|603\d\d\d|631\d\d\d)\b|\b(kelambakkam|siruseri|padur|navalur|thalambur|kovalam|muttukadu|mahabalipuram|mamallapuram|guduvanchery|maraimalai nagar|chengalpattu|sriperumbudur|oragadam|ponneri|gummidipoondi|tiruvallur|thiruvallur|kanchipuram|kancheepuram)\b/i;
 const OSM_SKIP = new Set(['clinic', 'hospital']);
 const stats = { keptPin: 0, closed: 0, sharedPin: 0, spiritual: 0, farPins: 0, osmSkipped: 0, outsideAd: 0, noG: 0, badCoords: 0, dupes: 0, geocoded: 0, geoMiss: 0, areaFilled: 0 };
 rows = rows.filter((r) => {
@@ -120,19 +123,18 @@ rows = rows.filter((r) => {
      stays; the organisations themselves do not. */
   if (CLOSED.test(r.n)) { stats.closed++; console.log(`  skipped (closed): ${r.n}`); return false; }
   if (NOT_WELLNESS.test(r.n) || NOT_WELLNESS.test(r.d || '') && r.g === 'alttherapy') { stats.spiritual++; console.log(`  skipped (spiritual/religious): ${r.n}`); return false; }
-  /* OSM tags hundreds of nursing homes and doctors' rooms in Mumbai as
+  /* OSM tags hundreds of nursing homes and doctors' rooms in Chennai as
      hospitals and clinics; those come from research only. */
   /* Dentists are the exception: OSM maps them reliably, by name. */
   if (r._osm && OSM_SKIP.has(r.g) && r.s !== 'Dental clinic') { stats.osmSkipped++; return false; }
   if (!r.g || !SUBCAT[r.g]) { stats.noG++; console.log(`  skipped (unknown g ${JSON.stringify(r.g)}): ${r.n} [${r._file}]`); return false; }
   r.category = r.category || G_CATEGORY[r.g];
   r.out = r.out === '1' || r.out === 1 ? 1 : 0;
-  /* An address in Bhiwandi, Kalyan-Dombivli, Panvel MC (Kharghar, Ulwe…)
-     or Vasai-Virar is outside the city whatever its pin says. Mumbai, Navi
-     Mumbai, Thane and Mira-Bhayandar are all in. */
-  if (!r.out && OUTSIDE.test(r.ad || '')) { stats.outsideAd++; console.log(`  skipped (address outside BMC): ${r.n} — ${r.ad}`); return false; }
+  /* An address past the city's edge (see OUTSIDE) is outside whatever its
+     pin says. GCC, Tambaram and Avadi are all in. */
+  if (!r.out && OUTSIDE.test(r.ad || '')) { stats.outsideAd++; console.log(`  skipped (address outside the city): ${r.n} — ${r.ad}`); return false; }
   let lat = num(r.lat), lon = num(r.lon);
-  /* Swapped coordinates are a common slip: Mumbai is about 19 N, 72.8 E. */
+  /* Swapped coordinates are a common slip: Chennai is about 13 N, 80.2 E. */
   if (lat != null && lon != null && lat > 60 && lon < 30) [lat, lon] = [lon, lat];
   if (lat != null && lon != null && !r.out && !inCity(lon, lat)) {
     stats.badCoords++;
@@ -145,7 +147,7 @@ rows = rows.filter((r) => {
 
 /* ---------- de-duplicate ---------- */
 const key = (n) => n.toLowerCase()
-  .replace(/\b(the|pvt|ltd|private|limited|mumbai|centre|center|clinic|studio|cafe|café)\b/g, ' ')
+  .replace(/\b(the|pvt|ltd|private|limited|chennai|centre|center|clinic|studio|cafe|café)\b/g, ' ')
   .replace(/[^a-z0-9]+/g, '');
 const merged = [];
 const FILL = ['a', 'ad', 'lat', 'lon', 'gm', 'w', 'ig', 'd', 'p', 'b', 't', 'tg'];
@@ -174,7 +176,7 @@ const saveCache = () => { fs.mkdirSync(path.dirname(CACHE), { recursive: true })
 async function nominatim(q) {
   if (q in cache) return cache[q];
   const url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in'
-    + '&viewbox=72.70,19.35,73.10,18.85&bounded=0&q=' + encodeURIComponent(q);
+    + '&viewbox=79.95,13.30,80.35,12.80&bounded=0&q=' + encodeURIComponent(q);
   let hit = null;
   try {
     const res = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(30000) });
@@ -191,7 +193,7 @@ async function photon(q) {
   if (k in cache) return cache[k];
   let hit = null;
   try {
-    const res = await fetch('https://photon.komoot.io/api/?limit=1&lang=en&lat=19.07&lon=72.87&q=' + encodeURIComponent(q),
+    const res = await fetch('https://photon.komoot.io/api/?limit=1&lang=en&lat=13.05&lon=80.24&q=' + encodeURIComponent(q),
       { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(30000) });
     if (res.ok) {
       const f = (await res.json()).features?.[0];
@@ -226,23 +228,23 @@ const hoodPt = (a) => {
   const h = hoodsForCheck.filter((x) => Array.isArray(x.pt) && x.pt[0] != null).find((x) => words.some((w) => x.name.toLowerCase().includes(w) || w.includes(x.name.toLowerCase())));
   return h?.pt || null;
 };
-const LANDMARK = /\b(mall|marketcity|market city|palladium|phoenix|inorbit|infiniti|oberoi|r city|viviana|lake shore|korum|growel|nexus|grand central|raghuleela|kamala mills|todi mills|high street|udyan|udyaan|park|garden|beach|chowpatty|caves?|jetty|hospital|institute|fort|station|gymkhana|complex|lake|club|stadium|maidan|temple|church|school|college|university|hotel|plaza|centre|center|bhavan|bhawan|dome|pagoda)\b/i;
+const LANDMARK = /\b(mall|marketcity|market city|palladium|phoenix|inorbit|infiniti|oberoi|r city|viviana|express avenue|forum|vr chennai|nexus|spencer|ampa|chennai citi centre|high street|poonga|park|garden|beach|caves?|jetty|hospital|institute|fort|station|gymkhana|complex|lake|club|stadium|maidan|temple|church|school|college|university|hotel|plaza|centre|center|bhavan|bhawan|dome|pagoda)\b/i;
 const JUNK = /^(shop|unit|office|flat|gala|plot|no\.?|ground|first|second|third|\d+(st|nd|rd|th)?\s*floor|floor|ugf|lgf|wing|block|room|near|opp\.?|opposite|behind|next to|above|below|beside)\b|^\d+[a-z]?$/i;
-/* Which city to name in a lookup: a Thane or Navi Mumbai address asked about
-   as if it were in Mumbai finds nothing. */
-const NAVI = /navi mumbai|vashi|sanpada|juinagar|turbhe|nerul|seawoods|belapur|kopar ?khairane|ghansoli|rabale|airoli|digha|mahape/i;
+/* Which city to name in a lookup. Nominatim files Tambaram and Avadi
+   addresses under their own towns, so those are asked about by name. */
 const cityOf = (r) => {
   const t = `${r.ad || ''} ${r.a || ''}`;
-  if (/mira road|mira-bhayandar|mira bhayandar|bhayandar|bhayander|kashimira|uttan/i.test(t) && !/bhayandar ?pada/i.test(t)) return 'Mira-Bhayandar';
-  return NAVI.test(t) ? 'Navi Mumbai' : /\bthane\b|ghodbunder|majiwada|kalwa|mumbra|diva\b|kasarvadavali|naupada|kolshet|manpada|vartak nagar|wagle/i.test(t) ? 'Thane' : 'Mumbai';
+  if (/tambaram|chromepet|pallavaram|selaiyur|perungalathur|pammal|anakaputhur/i.test(t)) return 'Tambaram';
+  if (/\bavadi\b|pattabiram|thirumullaivoyal|thirunindravur/i.test(t)) return 'Avadi';
+  return 'Chennai';
 };
-const CITY_CENTRE = { Mumbai: [72.88, 19.08], Thane: [72.97, 19.2], 'Navi Mumbai': [73.02, 19.06], 'Mira-Bhayandar': [72.86, 19.29] };
+const CITY_CENTRE = { Chennai: [80.24, 13.05], Tambaram: [80.12, 12.92], Avadi: [80.1, 13.12] };
 function queries(r) {
   const c = cityOf(r);
   const city = r.out ? '' : (new RegExp(`\\b${c}\\b`, 'i').test(r.ad || '') ? '' : `, ${c}`);
   const segs = String(r.ad || '').replace(/^(start|starts at|starting point|meeting point)\s*:?\s*/i, '')
     .split(/\s*[,;–]\s*/).map((x) => x.trim()).filter(Boolean);
-  const useful = segs.filter((x) => !JUNK.test(x) && !/^(mumbai|maharashtra|india|\d{6})$/i.test(x) && !/^mumbai\s+\d{6}$/i.test(x));
+  const useful = segs.filter((x) => !JUNK.test(x) && !/^(chennai|tamil nadu|tamilnadu|india|\d{6})$/i.test(x) && !/^chennai\s+\d{6}$/i.test(x));
   const area = r.a ? r.a.split(/\s*[/(]\s*/)[0] : '';
   const out = [];
   useful.filter((x) => LANDMARK.test(x)).forEach((x) => out.push(`${x}${area && !x.includes(area) ? ', ' + area : ''}${city}`));
@@ -257,7 +259,7 @@ function queries(r) {
 /* Day trips beyond OUT_MAX_M stay on the list but get no pin: the map's edge
    is a circle that takes in every pin (build-region.mjs), and a fort 100 km
    off would make it four times the city. Bengaluru's circle is 38.5 km. */
-const CENTRE = [72.879, 19.081], OUT_MAX_M = 50000;
+const CENTRE = [80.237, 13.05], OUT_MAX_M = 50000;
 for (const r of merged) {
   if (r.out && r.lat != null && metres([r.lon, r.lat], CENTRE) > OUT_MAX_M) {
     r.notes = [r.notes, `pin ${r.lat},${r.lon} is over ${OUT_MAX_M / 1000} km out; listed as a day trip without one`].filter(Boolean).join('; ');
@@ -337,7 +339,7 @@ saveCache();
   const segsOf = (r) => String(r.ad || '').split(/\s*[,;]\s*/).map((x) => x.trim())
     .filter((x) => BUILDING.test(x) && !/\b(beach|park|garden|udyan|lake|chowpatty|maidan|fort|caves?|trail|station)\b/i.test(x) && x.length > 5)
     .map((x) => x.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim());
-  const areaWords = (r) => new Set(String(r.a || '').toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !/^(east|west|road|nagar|mumbai)$/.test(w)));
+  const areaWords = (r) => new Set(String(r.a || '').toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3 && !/^(east|west|road|nagar|chennai)$/.test(w)));
   const sameArea = (m, r) => { const a = areaWords(m), b = areaWords(r); return !a.size || !b.size || [...a].some((w) => b.has(w)); };
   const GENERIC_BLD = /^(mall|the mall|complex|centre|center|plaza|tower|building|house)$/;
   const core = (k) => k.replace(/\b(mall|the|shop|no|ground|floor|level|unit)\b/g, ' ').replace(/\s+/g, ' ').trim();
@@ -376,13 +378,13 @@ const idFor = new Map(prev.map((p) => [`${key(p.n)}|${p.g}|${spot(p)}`, p.id]));
 prev.forEach((p) => { const k = `${key(p.n)}|${p.g}`; if (!idFor.has(k)) idFor.set(k, p.id); });
 /* A place refiled under another sub-category keeps its id: matched by name and spot alone. */
 prev.forEach((p) => { const k = `${key(p.n)}|*|${spot(p)}`; if (spot(p) && !idFor.has(k)) idFor.set(k, p.id); });
-let next = prev.reduce((m, p) => Math.max(m, +(String(p.id).match(/MUM-(\d+)/)?.[1] || 0)), 0);
+let next = prev.reduce((m, p) => Math.max(m, +(String(p.id).match(/CHN-(\d+)/)?.[1] || 0)), 0);
 const ORDER = Object.keys(G_CATEGORY);
 merged.sort((a, b) => ORDER.indexOf(a.g) - ORDER.indexOf(b.g) || a.n.localeCompare(b.n));
 const used = new Set();
 for (const r of merged) {
   let id = idFor.get(`${key(r.n)}|${r.g}|${spot(r)}`) || idFor.get(`${key(r.n)}|${r.g}`) || (spot(r) && idFor.get(`${key(r.n)}|*|${spot(r)}`));
-  if (!id || used.has(id)) id = `MUM-${String(++next).padStart(4, '0')}`;
+  if (!id || used.has(id)) id = `CHN-${String(++next).padStart(4, '0')}`;
   used.add(id);
   r.id = id;
 }

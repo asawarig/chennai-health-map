@@ -4,8 +4,8 @@ import WellnessMap from '../components/WellnessMap.astro';
 import { COUNTS } from '../lib/db.js';
 import { MAP_INTENTS } from '../lib/intents.js';
 
-const title = `Mumbai Wellness Map — ${COUNTS.onMap} places to move, eat and reset`;
-const description = `${COUNTS.onMap} pinned places for looking after yourself in Mumbai, Navi Mumbai, Thane and Mira-Bhayandar `
+const title = `Chennai Wellness Map — ${COUNTS.onMap} places to move, eat and reset`;
+const description = `${COUNTS.onMap} pinned places for looking after yourself in Chennai, Tambaram and Avadi `
   + '— parks, routes, gyms, clinics, kitchens and communities, on one interactive map. '
   + `${COUNTS.parks} are public parks, ${COUNTS.verified} verified. Free to use, from Plum.`;
 
@@ -29,10 +29,10 @@ const schema = {
       inLanguage: 'en-IN',
       isPartOf: { '@type': 'WebSite', '@id': `${site}#website`, url: site, name: 'Plum' },
       publisher: { '@type': 'Organization', '@id': `${site}#org`, name: 'Plum', url: site },
-      about: { '@type': 'Place', name: 'Mumbai', address: {
-        '@type': 'PostalAddress', addressLocality: 'Mumbai', addressRegion: 'Maharashtra', addressCountry: 'IN',
+      about: { '@type': 'Place', name: 'Chennai', address: {
+        '@type': 'PostalAddress', addressLocality: 'Chennai', addressRegion: 'Tamil Nadu', addressCountry: 'IN',
       } },
-      primaryImageOfPage: { '@type': 'ImageObject', url: `${site}${base}og-be-well-mumbai.jpg`, width: 1200, height: 630 },
+      primaryImageOfPage: { '@type': 'ImageObject', url: `${site}${base}og-be-well-chennai.jpg`, width: 1200, height: 630 },
     },
     {
       '@type': 'BreadcrumbList',
@@ -40,13 +40,13 @@ const schema = {
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Plum', item: site },
         { '@type': 'ListItem', position: 2, name: 'Health map', item: `${site}/health-map` },
-        { '@type': 'ListItem', position: 3, name: 'Mumbai' },
+        { '@type': 'ListItem', position: 3, name: 'Chennai' },
       ],
     },
     {
       '@type': 'ItemList',
       '@id': `${url}#categories`,
-      name: 'What you can find on the Mumbai Wellness Map',
+      name: 'What you can find on the Chennai Wellness Map',
       numberOfItems: MAP_INTENTS.length,
       itemListElement: MAP_INTENTS.map((i, n) => ({
         '@type': 'ListItem',
@@ -68,7 +68,7 @@ export const prerender = false;
 ---
 
 <BaseLayout title={title} description={description} schema={schema} map
-  ogTitle="Be well, Mumbai | Your local guide to move, eat and reset"
-  ogDescription="A health map of Mumbai, Navi Mumbai, Thane and Mira-Bhayandar with places to move, eat, recover and reset, from parks and gyms to clinics, kitchens and communities. Free to use, by Plum.">
+  ogTitle="Be well, Chennai | Your local guide to move, eat and reset"
+  ogDescription="A health map of Chennai, Tambaram and Avadi with places to move, eat, recover and reset, from parks and gyms to clinics, kitchens and communities. Free to use, by Plum.">
   <WellnessMap />
 </BaseLayout>

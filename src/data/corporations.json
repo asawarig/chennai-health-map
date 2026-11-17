@@ -1,65 +1,44 @@
 [
   {
-    "k": "South",
-    "label": "South Mumbai",
-    "c": "#A9DCCB",
-    "tone": "#1F7F66",
-    "km2": 30
+    "k": "North",
+    "label": "North Chennai",
+    "c": "#D3D08A",
+    "tone": "#676420",
+    "km2": 143
   },
   {
     "k": "Central",
-    "label": "Central Mumbai",
+    "label": "Central Chennai",
     "c": "#C9BCEC",
     "tone": "#6344A8",
-    "km2": 41
+    "km2": 91
   },
   {
     "k": "West",
-    "label": "Western Suburbs",
-    "c": "#F4BACA",
-    "tone": "#C93A64",
-    "km2": 70
-  },
-  {
-    "k": "NorthWest",
-    "label": "Northern Western Suburbs",
+    "label": "West Chennai",
     "c": "#B8D6F2",
     "tone": "#2F68A3",
-    "km2": 154
+    "km2": 82
   },
   {
-    "k": "East",
-    "label": "Eastern Suburbs",
-    "c": "#D3D08A",
-    "tone": "#676420",
-    "km2": 73
+    "k": "South",
+    "label": "South Chennai",
+    "c": "#A9DCCB",
+    "tone": "#1F7F66",
+    "km2": 122
   },
   {
-    "k": "NorthEast",
-    "label": "Northern Eastern Suburbs",
+    "k": "Tambaram",
+    "label": "Tambaram",
+    "c": "#F4BACA",
+    "tone": "#C93A64",
+    "km2": 103
+  },
+  {
+    "k": "Avadi",
+    "label": "Avadi",
     "c": "#F4D77E",
     "tone": "#94700F",
-    "km2": 109
-  },
-  {
-    "k": "NaviMumbai",
-    "label": "Navi Mumbai",
-    "c": "#F5C6A8",
-    "tone": "#A8532A",
-    "km2": 105
-  },
-  {
-    "k": "Thane",
-    "label": "Thane",
-    "c": "#C7E3A9",
-    "tone": "#4E7A1E",
-    "km2": 142
-  },
-  {
-    "k": "MiraBhayandar",
-    "label": "Mira-Bhayandar",
-    "c": "#F2C4E0",
-    "tone": "#9B3A78",
-    "km2": 89
+    "km2": 152
   }
 ]

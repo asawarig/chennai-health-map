@@ -4,8 +4,8 @@ Inputs for the ingest scripts. Baked outputs live in `src/data/`.
 
 | Path | Used by |
 |---|---|
-| `entries/healthmap_v8_recategorised.csv` | `node scripts/ingest-entries.mjs …` |
-| `routes/wellness-map-routes-v2.csv` | `node scripts/ingest-routes.mjs` / `snap-routes.mjs` |
+| `entries/chennai-places.csv` | `node scripts/ingest-entries.mjs` (written by `merge-places.mjs` from `entries/research/*.json` + `entries/osm-places.csv`) |
+| `routes/chennai-routes.csv` | `node scripts/ingest-routes.mjs` / `snap-routes.mjs` |
 | `routes/running-routes.{csv,geojson}` | `node scripts/ingest-running-routes.mjs` — running, cycling and track rows; the CSV is the full `routes.csv`, the GeoJSON still covers only the original 64 |
 | `intents/intents.csv` | Reference taxonomy (see `ICONOGRAPHY.md`) |
 | `entries/categories.csv` | The v8 category spec; `ingest-perks.mjs` reads the Plum Perks blurb from it |

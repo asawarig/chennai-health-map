@@ -1,6 +1,6 @@
 /* Rebuild src/data/entries.json from a places CSV.
  *
- *   node scripts/ingest-entries.mjs sources/entries/healthmap_v8_recategorised.csv
+ *   node scripts/ingest-entries.mjs sources/entries/chennai-places.csv
  *
  * The sheet is the source of truth for what is on the map, but it is a sheet:
  * a few columns disagree with the code, and one of them (out) has been
@@ -37,7 +37,7 @@ import { SUBCAT } from '../src/lib/categories.js';
 import { ZONE_KEYS, RG_ALIAS, zoneAt } from './zones.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const CSV = path.resolve(ROOT, process.argv[2] || 'sources/entries/healthmap_v8_recategorised.csv');
+const CSV = path.resolve(ROOT, process.argv[2] || 'sources/entries/chennai-places.csv');
 const OUT = path.join(ROOT, 'src/data/entries.json');
 
 const city = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/data/city.json'), 'utf8'));

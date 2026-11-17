@@ -1,12 +1,12 @@
-/* Builds src/data/parks.json: Mumbai's public parks and gardens, from
- * OpenStreetMap. Bengaluru's came from the BBMP parks register; Mumbai has no
- * equivalent open register, so this takes OSM's.
+/* Builds src/data/parks.json: Chennai's public parks and gardens, from
+ * OpenStreetMap. Bengaluru's came from the BBMP parks register; GCC publishes
+ * no equivalent open register, so this takes OSM's.
  *
  *   node scripts/osm-parks.mjs
  *
- * Takes every leisure=park, leisure=garden and recreation ground (Mumbai's
- * maidans, which OSM tags as leisure= or landuse=recreation_ground; Oval and
- * Azad Maidan are the latter) inside the city (the BMC area, mask.json) that has a
+ * Takes every leisure=park, leisure=garden and recreation ground (playgrounds
+ * and maidans, which OSM tags as leisure= or landuse=recreation_ground) inside
+ * the city (GCC, Tambaram and Avadi, mask.json) that has a
  * name, is not private, and covers at least MIN_SQM. Unnamed ones are left
  * out, and so are names that only say "park" or "garden": a pin called
  * "park 1" helps nobody. So are housing-society gardens, school grounds and
@@ -28,7 +28,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { CITY_RELS } from './city.mjs';
 import { NOT_WELLNESS } from './exclusions.mjs';
 
-const UA = 'mumbai-wellness-map/1.0 (parks build script)';
+const UA = 'chennai-wellness-map/1.0 (parks build script)';
 const MIN_SQM = 500;
 
 const OVERPASS = [
@@ -182,9 +182,9 @@ function plainHours(raw) {
 /* ---------- build ---------- */
 const PRIVATE = /^(private|no|customers|permit)$/;
 /* Mapped as gardens and grounds, but behind a gate. */
-const NOT_PUBLIC = /\b(society|soc\.?|chs|co-?op\w*|housing|residency|residence|apartments?|towers?|complex|school|vidya|vidyalaya|college|university|academy|hostel|club|gymkhana|association|hotel|back area|compound|police|parade ground|chapel|church|convent|canossa|holy cross|st\.?|saint|aquarium|plaza|chowk|building|mmrda|jio)\b|^(back|front) ground$/i;
+const NOT_PUBLIC = /\b(society|soc\.?|chs|co-?op\w*|housing|residency|residence|apartments?|towers?|complex|school|vidya|vidyalaya|college|university|academy|hostel|club|gymkhana|association|hotel|back area|compound|police|parade ground|chapel|church|convent|canossa|holy cross|st\.?|saint|aquarium|plaza|chowk|building|cmda|tnhb|kendriya|matriculation|nagar association)\b|^(back|front) ground$/i;
 /* Names that say nothing but what the thing is. */
-const GENERIC = /^(bmc\s+|municipal\s+)?(park|garden|udyan|play\s*ground|ground|open space|recreation ground)(\s*(no\.?\s*)?\d+)?$/i;
+const GENERIC = /^(gcc\s+|corporation\s+|municipal\s+)?(park|garden|poonga|udyan|play\s*ground|ground|open space|recreation ground)(\s*(no\.?\s*)?\d+)?$/i;
 /* "abhinav nagar garden" -> "Abhinav Nagar Garden"; names with any capitals stay as mapped. */
 const tidyName = (n) => (n === n.toLowerCase() || n === n.toUpperCase()
   ? n.toLowerCase().replace(/\b\p{L}/gu, (c) => c.toUpperCase()) : n);

@@ -1,66 +1,71 @@
-# Mumbai Wellness Map
+# Chennai Wellness Map
 
 An interactive map of places, routes, clinics, kitchens and communities for
-looking after yourself in Mumbai, built as an [Astro](https://astro.build)
+looking after yourself in Chennai, built as an [Astro](https://astro.build)
 site. Built by the marketing team at [Plum](https://plumhq.com).
 
-It is a copy of the [Bengaluru Wellness Map](https://www.plumhq.com/health-map/bengaluru),
-with the city swapped. Most of this README was written for Bengaluru and still
-describes the code accurately; where it names Bengaluru's data, read Mumbai's.
+It is a copy of the Mumbai Wellness Map, itself a copy of the
+[Bengaluru Wellness Map](https://www.plumhq.com/health-map/bengaluru), with the
+city swapped. Most of this README was written for Bengaluru and still
+describes the code accurately; where it names Bengaluru's data, read Chennai's.
 
-## Mumbai: what changed, what is still to do
+## Chennai: what changed, what is still to do
 
 **Changed**
 
-- **City outline**: the BMC area, which OpenStreetMap has as Mumbai City
-  District (relation 7964376) plus Mumbai Suburban District (7964375). The
-  outline is the two joined along their shared border.
-- **"Corporations" are BMC's six zones** (OSM relations 7888964–7888969).
-  The code still calls them corporations. Keys, names and colours are in
-  `src/data/corporations.json`: `South` (Zone 1, South Mumbai), `Central`
-  (Zone 2), `West` (Zone 3, Bandra–Andheri), `NorthWest` (Zone 4,
-  Goregaon–Dahisar), `East` (Zone 5, Kurla–Chembur–Govandi), `NorthEast`
-  (Zone 6, Ghatkopar–Bhandup–Mulund). Use these keys in an entry's `rg`.
-- **Navi Mumbai** (Navi Mumbai Municipal Corporation, OSM relation 13180880)
-  is the seventh zone, key `NaviMumbai`, across Thane Creek. Kharghar,
-  Panvel and Ulwe are Panvel Municipal Corporation and are not on the map.
-  The OSM areas every build script uses are in `scripts/city.mjs`.
-- **Thane** (Thane Municipal Corporation, OSM relation 7120000: Thane city,
-  Ghodbunder Road, Kalwa, Mumbra, Diva) is the eighth zone, key `Thane`.
-- **Mira-Bhayandar** (Mira-Bhayandar Municipal Corporation, OSM relation
-  13180677: Mira Road, Bhayandar, Kashimira, Uttan) is the ninth zone, key
-  `MiraBhayandar`.
-- **Wards** are BMC's 24 administrative wards (A Ward … T Ward), each labelled
-  with the neighbourhoods it is known by.
-- **Metro**: the running Mumbai Metro lines and stations from OSM.
-- **Parks**: Mumbai's public parks, gardens and maidans from OSM
-  (`node scripts/osm-parks.mjs`), in place of Bengaluru's BBMP register.
-  Named ones of 500 m² or more; society gardens, school grounds, clubs and
-  generic names ("park 1") are left out. Fix a wrong one in OSM and rerun.
-- **Green roads**: rebuilt over Mumbai's parks and forests.
-- All the on-page text says Mumbai.
-- **The logos say "Be well, Mumbai"** (`public/be-well-logo*.svg`). "Be Well,"
-  is the original hand lettering. "Mumbai" is set in Kalam Bold (Indian Type
-  Foundry, SIL Open Font License) in the long and short logos, and in
-  Grenette Pro with the original's letter spacing in the plain one, both
-  converted to outlines. A hand-lettered "Mumbai" from the designer would
-  match the brush strokes better.
+- **City outline**: Greater Chennai Corporation (OSM relation 1766358) joined
+  with the Tambaram taluk (10326121) and the Avadi taluk (21492307). OSM does
+  not map Tambaram or Avadi City Municipal Corporation as areas of their own,
+  so their taluks stand in; each is a little larger than its corporation. The
+  OSM areas every build script uses are in `scripts/city.mjs`.
+- **"Corporations" are six regions**: GCC's 15 zones grouped as `North`
+  (Zones 1–5), `Central` (6, 8, 9, 10), `West` (7, 11, 12) and `South`
+  (13, 14, 15), plus `Tambaram` and `Avadi`. The code still calls them
+  corporations. Keys, names and colours are in `src/data/corporations.json`;
+  the grouping is `ZONES` in `scripts/osm-boundaries.mjs`. Use these keys in
+  an entry's `rg`, or leave it blank and the ingest fills it from the pin.
+- **"Wards" are GCC's 15 zones** (Zone 1 Tiruvottiyur … Zone 15
+  Sholinganallur, OSM admin_level 9), each labelled with the neighbourhoods
+  it is known by, plus Tambaram and Avadi as one each. GCC's 200 numbered
+  wards (admin_level 10) are too fine to choose from.
+- **Metro**: Chennai Metro's Blue, Green and Yellow lines and their 51 open
+  stations, from OSM. Phase 2 lines still under construction drop out on
+  their own and appear once OSM shows them open; a station counts only within
+  150 m of an open line.
+- **Parks**: Chennai's public parks, poongas and grounds from OSM
+  (`node scripts/osm-parks.mjs`). Named ones of 500 m² or more; society
+  gardens, school grounds, clubs and generic names are left out.
+- **Green roads**: rebuilt over Chennai's parks.
+- **Places**: `sources/entries/chennai-places.csv`, merged by
+  `scripts/merge-places.mjs` from the researched rows in
+  `sources/entries/research/*.json` (see `research/BRIEF.md` for the rules
+  they were gathered under) and the OSM sweep `sources/entries/osm-places.csv`.
+  New ids are `CHN-0001…`.
+- **Routes**: `sources/routes/chennai-routes.csv`, ids `CHN-RT-01…`,
+  ingested by `scripts/ingest-routes.mjs` and traced by `scripts/snap-routes.mjs`.
+- All the on-page text says Chennai; the Webflow mount path is
+  `/health-map/chennai`.
+- **The logos say "Be well, Chennai"** (`public/be-well-logo*.svg`). "Be Well,"
+  is the original hand lettering. "Chennai" is set in Kalam Bold (Indian Type
+  Foundry, SIL Open Font License) in the long and short logos, and in Grenette
+  Pro with the original's letter spacing in the plain one, converted to
+  outlines — the same treatment the Mumbai logos had. A hand-lettered
+  "Chennai" from the designer would match the brush strokes better.
 
-**Cleared, waiting for Mumbai data**
+**Cleared, still to make for Chennai**
 
-- Places (`sources/entries/healthmap_v8_recategorised.csv`, header only)
-- Routes (`sources/routes/*.csv`, header only)
-- Communities (`src/data/community-categories.json`), themed days
-  (`src/data/themed-days.json`), map ornaments (`src/data/ambient.json`)
+- Themed days (`src/data/themed-days.json`) — rebuild once the places are
+  settled, then `node scripts/themed-day-routes.mjs`.
+- Map ornaments (`src/data/ambient.json`).
 
 **Kept as they were**
 
 - Plum Perks partner brands and the online Plum events, which are not
-  tied to a city. One perk, Praan Health, is listed at Koramangala.
-- **All the other artwork**, which is still Bengaluru's as a placeholder: the
-  hero, the stamp, the vignettes, the 404 map and the share image
-  `og-be-well-bengaluru-3.jpg`. Their alt text still says Bengaluru because
-  it describes the images. Change both together.
+  tied to a city.
+- **All the other artwork is a placeholder**: the hero, the stamp and
+  vignettes are still Bengaluru's, and the share image
+  `public/og-be-well-chennai.jpg` is still **Mumbai's picture** (it says
+  "Be Well, Mumbai") under a Chennai filename. Replace it before launch.
 - The Plum HQ pin is hidden, since it is in Bengaluru (`PLUM_HQ` in
   `src/scripts/wellness-map.js`).
 - The disclaimers still name the courts at Bengaluru, since that is
@@ -487,10 +492,10 @@ keeps tinted tiles with initials. No Google or scraped photos.
 
 | What | Source | Licence |
 |---|---|---|
-| The entries | Compiled by hand | Ours |
-| Metro lines | OpenStreetMap Mumbai Metro route relations, running track only | ODbL |
-| Parks | OpenStreetMap parks, gardens and maidans (scripts/osm-parks.mjs) | ODbL |
-| City, corporation and ward boundaries | OpenStreetMap relation 7902476 and the admin boundaries inside it | ODbL |
+| The entries | Researched from public listings, plus an OpenStreetMap sweep | Ours; OSM rows ODbL |
+| Metro lines | OpenStreetMap Chennai Metro route relations, running track only | ODbL |
+| Parks | OpenStreetMap parks, poongas and grounds (scripts/osm-parks.mjs) | ODbL |
+| City, region and zone boundaries | OpenStreetMap relations 1766358 (GCC), 10326121 and 21492307 (Tambaram and Avadi taluks), and GCC's zones | ODbL |
 | Basemap | OpenStreetMap vector tiles via OpenFreeMap (OpenMapTiles schema) | ODbL, free with attribution |
 | Underlying map data | OpenStreetMap contributors | ODbL |
 

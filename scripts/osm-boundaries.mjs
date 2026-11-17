@@ -2,25 +2,24 @@
  *
  *   node scripts/osm-boundaries.mjs
  *
- * OSM has no single relation for the Brihanmumbai Municipal Corporation: its
- * area is Mumbai City District (7964376) plus Mumbai Suburban District
- * (7964375), so the city outline is those two joined along their shared
- * border. BMC's six zones are 7888964–7888969 (admin_level=9) and its 24
- * administrative wards (A Ward … T Ward) sit under them at admin_level=10.
- * Navi Mumbai Municipal Corporation (13180880) is the seventh zone, across
- * Thane Creek; its own wards, where OSM has them at admin_level=10, sit under
- * it, and where it has none the zone is its own one ward. City relations are
- * in scripts/city.mjs. The map calls the zones "corporations" — the word the
- * code inherited from Bengaluru. Overpass lists the wards; Nominatim returns every relation as
- * an assembled, lightly simplified polygon. Writes:
+ * Greater Chennai Corporation (relation 1766358) has 15 zones at admin_level 9
+ * (Zone 1 Tiruvottiyur … Zone 15 Sholinganallur) and 200 wards under them at
+ * admin_level 10. Two hundred numbered wards mean little to anyone choosing
+ * where to run, so the map's clickable areas are the 15 zones, which people do
+ * know by name ("Adyar zone"). The coloured ground is six regions: four groups
+ * of GCC zones (North, Central, West, South Chennai) plus Tambaram and Avadi,
+ * whose taluks stand in for their corporations (see scripts/city.mjs). The map
+ * calls the regions "corporations" and the zones "wards", the words the code
+ * inherited from Bengaluru. Nominatim returns every relation as an assembled,
+ * lightly simplified polygon. Writes:
  *
- *   src/data/zones.json               one polygon per ward, tagged with its zone
- *   src/data/corporation-areas.json   the six zones, for the basemap's ground colours
+ *   src/data/zones.json               one polygon per zone, tagged with its region
+ *   src/data/corporation-areas.json   the six regions, for the basemap's ground colours
  *   src/data/mask.json                the city cut out of a wide rectangle (the halftone)
  *   src/data/city.json          bounding box and area
- *   src/data/corporations.json  km² per corporation (hues are left alone)
+ *   src/data/corporations.json  km² per region (hues are left alone)
  *
- * It also reports entries whose `rg` disagrees with the corporation their pin
+ * It also reports entries whose `rg` disagrees with the region their pin
  * actually falls in. It does not rewrite entries.json.
  */
 
@@ -29,9 +28,37 @@ import { union } from 'polyclip-ts';
 import { CITY_RELS } from './city.mjs';
 
 const DATA = new URL('../src/data/', import.meta.url);
-const UA = 'mumbai-wellness-map/1.0 (boundary build script)';
-const CORP_REL = { South: 7888969, Central: 7888968, West: 7888967, NorthWest: 7888966, East: 7888965, NorthEast: 7888964, NaviMumbai: 13180880, Thane: 7120000, MiraBhayandar: 13180677 };
+const UA = 'chennai-wellness-map/1.0 (boundary build script)';
 
+/* GCC's zones as OSM has them (admin_level 9), and the region each is drawn in. */
+const ZONES = [
+  { id: 7885949, n: 1, name: 'Tiruvottiyur', rg: 'North' },
+  { id: 7886090, n: 2, name: 'Manali', rg: 'North' },
+  { id: 7886220, n: 3, name: 'Madhavaram', rg: 'North' },
+  { id: 7883921, n: 4, name: 'Tondiarpet', rg: 'North' },
+  { id: 7883985, n: 5, name: 'Royapuram', rg: 'North' },
+  { id: 7887530, n: 6, name: 'Thiru. Vi. Ka. Nagar', rg: 'Central' },
+  { id: 7888246, n: 7, name: 'Ambattur', rg: 'West' },
+  { id: 7887722, n: 8, name: 'Anna Nagar', rg: 'Central' },
+  { id: 7880733, n: 9, name: 'Teynampet', rg: 'Central' },
+  { id: 7888502, n: 10, name: 'Kodambakkam', rg: 'Central' },
+  { id: 7888806, n: 11, name: 'Valasaravakkam', rg: 'West' },
+  { id: 7888805, n: 12, name: 'Alandur', rg: 'West' },
+  { id: 7880736, n: 13, name: 'Adyar', rg: 'South' },
+  { id: 7879836, n: 14, name: 'Perungudi', rg: 'South' },
+  { id: 7876675, n: 15, name: 'Sholinganallur', rg: 'South' },
+];
+/* Regions that are one relation each, standing as their own single "ward". */
+const SINGLE = { Tambaram: 10326121, Avadi: 21492307 };
+
+/* What each zone is known for, so "Zone 9" reads as somewhere. */
+const ZONE_AREAS = {
+  1: 'Tiruvottiyur, Ennore', 2: 'Manali, Mathur', 3: 'Madhavaram, Puzhal', 4: 'Tondiarpet, Vyasarpadi',
+  5: 'Royapuram, George Town, Egmore', 6: 'Perambur, Kolathur, Pulianthope', 7: 'Ambattur, Mogappair, Korattur',
+  8: 'Anna Nagar, Kilpauk, Aminjikarai', 9: 'Teynampet, Mylapore, Nungambakkam, T. Nagar', 10: 'Kodambakkam, Vadapalani, K.K. Nagar, Saidapet',
+  11: 'Valasaravakkam, Porur, Virugambakkam', 12: 'Alandur, Guindy, Nanganallur', 13: 'Adyar, Besant Nagar, Velachery, Thiruvanmiyur',
+  14: 'Perungudi, Pallikaranai, Taramani', 15: 'Sholinganallur, Neelankarai, Injambakkam',
+};
 const read = (f) => JSON.parse(readFileSync(new URL(f, DATA), 'utf8'));
 const write = (f, j, pretty = false) => {
   const s = JSON.stringify(j, null, pretty ? 2 : 0);
@@ -140,148 +167,57 @@ function ringKm2(ring) {
 const km2 = (polys) => polys.reduce((a, p) => a + ringKm2(p[0]) - p.slice(1).reduce((b, h) => b + ringKm2(h), 0), 0);
 
 /* ---------- fetch ---------- */
-console.log('Listing wards from Overpass…');
-/* BMC's 24 wards as OSM had them in October 2026. Overpass is asked first, so
-   a ward added or split since turns up; when every public Overpass is busy
-   (it often is) the run carries on with this list. */
-const KNOWN_WARDS = {
-  'A Ward': 7885399, 'B Ward': 7885397, 'C Ward': 7885398, 'D Ward': 7885394, 'E Ward': 7885393,
-  'F/N Ward': 7885396, 'F/S Ward': 7885395, 'G/N Ward': 7885381, 'G/S Ward': 7885391,
-  'H/E Ward': 7885378, 'H/W Ward': 7885382, 'K/E Ward': 7885379, 'K/W Ward': 7885383,
-  'L Ward': 7885380, 'M/E Ward': 7885392, 'M/W Ward': 7885389, 'N Ward': 7885388,
-  'P/N Ward': 7885384, 'P/S Ward': 7885377, 'R/C Ward': 7885385, 'R/N Ward': 7885390,
-  'R/S Ward': 7885376, 'S Ward': 7885387, 'T Ward': 7885386,
-};
-let wardRels;
-try {
-  wardRels = await overpass(
-    `[out:json][timeout:90];rel(id:${CITY_RELS.join(',')});map_to_area->.city;`
-    + 'rel(area.city)["boundary"="administrative"]["admin_level"="10"];out tags;',
-  );
-} catch (e) {
-  console.log(`  ${e.message}; using the ${Object.keys(KNOWN_WARDS).length} known wards`);
-  wardRels = Object.entries(KNOWN_WARDS).map(([name, id]) => ({ id, tags: { name } }));
-}
-console.log(`  ${wardRels.length} admin_level=10 relations touch the city`);
-
 console.log('Fetching zone polygons from Nominatim…');
-const top = await lookup(Object.values(CORP_REL), 0.00002);
-console.log('Fetching ward polygons from Nominatim…');
-const wardGeo = await lookup(wardRels.map((w) => w.id), 0.00003);
-
-/* Nominatim's index trails OSM, so a recently mapped ward can be absent from
-   it. Those are assembled from their member ways via Overpass instead. */
-const late = wardRels.filter((w) => !wardGeo.has(w.id)).map((w) => w.id);
-if (late.length) {
-  console.log(`Assembling ${late.length} ward(s) Nominatim does not have yet from Overpass…`);
-  const rels = await overpass(`[out:json][timeout:90];rel(id:${late.join(',')});out geom;`);
-  rels.forEach((rel) => {
-    const geometry = assembleRelation(rel);
-    if (geometry) wardGeo.set(rel.id, { geometry });
-    else console.log(`  could not close the rings of relation ${rel.id}`);
-  });
+const zoneGeo = await lookup([...ZONES.map((z) => z.id), ...Object.values(SINGLE)], 0.00002);
+for (const id of [...ZONES.map((z) => z.id), ...Object.values(SINGLE)]) {
+  if (!zoneGeo.has(id)) throw new Error(`Nominatim did not return relation ${id}`);
 }
 
-/* The two districts, joined into one outline along the border they share. */
-console.log('Joining the two districts into the city outline…');
+console.log('Joining the city outline…');
 const dist = await lookup(CITY_RELS, 0.00002);
 const parts = CITY_RELS.map((id) => {
-  const f = dist.get(id);
-  if (!f) throw new Error(`Nominatim did not return district relation ${id}`);
+  const f = dist.get(id) || zoneGeo.get(id);
+  if (!f) throw new Error(`Nominatim did not return city relation ${id}`);
   return polysOf(f.geometry);
 });
-/* Specks under 0.05 km² (rocks off the coast) are left out. */
+/* Specks under 0.05 km² are left out. */
 const cityGeom = {
   type: 'MultiPolygon',
   coordinates: union(...parts).filter((p) => ringKm2(p[0]) > 0.05).map((p) => [p[0]]),
 };
-if (!cityGeom.coordinates.length) throw new Error('Could not join the two districts into one outline');
+if (!cityGeom.coordinates.length) throw new Error('Could not join the city outline');
 const cityPolys = polysOf(cityGeom);
 console.log(`  city outline: ${cityPolys.length} ring(s), ${cityPolys.reduce((a, p) => a + p[0].length, 0)} points`);
-const corpPolys = {};
-for (const [rg, id] of Object.entries(CORP_REL)) {
-  const f = top.get(id);
-  if (!f) throw new Error(`Nominatim did not return the ${rg} corporation (relation ${id})`);
-  corpPolys[rg] = polysOf(f.geometry);
-}
 
-/* A ward belongs to the corporation holding most of its vertices. Wards that
-   only touch the city from outside hold none and are dropped. */
-function corpFor(polys) {
-  const votes = {};
-  polys.forEach((p) => p[0].forEach((pt) => {
-    for (const rg in corpPolys) if (inPolys(pt, corpPolys[rg])) votes[rg] = (votes[rg] || 0) + 1;
-  }));
-  const total = polys.reduce((a, p) => a + p[0].length, 0);
-  const best = Object.keys(votes).sort((a, b) => votes[b] - votes[a])[0];
-  return best && votes[best] / total > 0.3 ? best : null;
+/* Each region is the union of its zones. */
+const corpPolys = {};
+for (const z of ZONES) (corpPolys[z.rg] ||= []).push(polysOf(zoneGeo.get(z.id).geometry));
+for (const rg of Object.keys(corpPolys)) {
+  corpPolys[rg] = union(...corpPolys[rg]).filter((p) => ringKm2(p[0]) > 0.01);
 }
+for (const [rg, id] of Object.entries(SINGLE)) corpPolys[rg] = polysOf(zoneGeo.get(id).geometry);
+const asGeom = (polys) => (polys.length === 1 ? { type: 'Polygon', coordinates: polys[0] } : { type: 'MultiPolygon', coordinates: polys });
 
 const corpsMeta = read('corporations.json');
-/* BMC's ward letters mean little to most people, so each carries the
-   neighbourhoods it is known by. */
-const WARD_AREAS = {
-  'A': 'Colaba, Fort', 'B': 'Dongri, Masjid Bunder', 'C': 'Kalbadevi, Marine Lines', 'D': 'Malabar Hill, Grant Road',
-  'E': 'Byculla, Mazgaon', 'F/N': 'Matunga, Sion, Wadala', 'F/S': 'Parel, Sewri', 'G/N': 'Dadar, Mahim, Dharavi',
-  'G/S': 'Worli, Prabhadevi, Lower Parel', 'H/E': 'Bandra East, Khar East, Santacruz East', 'H/W': 'Bandra West, Khar West, Santacruz West',
-  'K/E': 'Andheri East, Vile Parle East, Jogeshwari East', 'K/W': 'Andheri West, Juhu, Versova', 'L': 'Kurla, Sakinaka',
-  'M/E': 'Govandi, Mankhurd, Deonar', 'M/W': 'Chembur, Tilak Nagar', 'N': 'Ghatkopar, Vidyavihar',
-  'P/N': 'Malad', 'P/S': 'Goregaon', 'R/C': 'Borivali', 'R/N': 'Dahisar', 'R/S': 'Kandivali',
-  'S': 'Bhandup, Powai, Vikhroli', 'T': 'Mulund',
-};
-const wardLabel = (name) => {
-  const code = String(name).replace(/\s*Ward\s*$/i, '').trim();
-  return WARD_AREAS[code] ? `${code} Ward (${WARD_AREAS[code]})` : name;
-};
-
-function corpVotes(polys) {
-  const votes = {};
-  polys.forEach((p) => p[0].forEach((pt) => {
-    for (const rg in corpPolys) if (inPolys(pt, corpPolys[rg])) votes[rg] = (votes[rg] || 0) + 1;
-  }));
-  return { ...votes, of: polys.reduce((a, p) => a + p[0].length, 0) };
-}
-
-/* Ward names that match an entry's area keep the click-to-filter behaviour. */
 const entries = read('entries.json');
-const norm = (s) => String(s || '').toLowerCase()
-  .replace(/\bward\b/g, '').replace(/\bnagara\b/g, 'nagar').replace(/[^a-z0-9]/g, '');
+const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 const areaByNorm = new Map();
 entries.forEach((r) => { if (r.a) areaByNorm.set(norm(r.a), r.a); });
 
-const wards = [];
-const missing = [];
-const outside = [];
-for (const rel of wardRels) {
-  const f = wardGeo.get(rel.id);
-  if (!f) { missing.push(rel.tags.name); continue; }
-  const polys = polysOf(f.geometry);
-  const rg = corpFor(polys);
-  if (!rg) { outside.push(`${rel.tags.name} ${JSON.stringify(corpVotes(polys))}`); continue; }
-  const ward = wardLabel(rel.tags['name:en'] || rel.tags.name);
-  wards.push({
+const wards = ZONES.map((z) => {
+  const ward = `${z.name} (Zone ${z.n}: ${ZONE_AREAS[z.n]})`;
+  return {
     type: 'Feature',
-    properties: { rg, ward, area: areaByNorm.get(norm(ward)) || '', osm: rel.id },
-    geometry: roundGeom(f.geometry),
-  });
-}
-/* A zone OSM has no wards for is one ward of its own, so its area still
-   answers a click. */
-for (const rg of Object.keys(CORP_REL)) {
-  if (wards.some((w) => w.properties.rg === rg)) continue;
+    properties: { rg: z.rg, ward, area: areaByNorm.get(norm(z.name)) || '', osm: z.id },
+    geometry: roundGeom(zoneGeo.get(z.id).geometry),
+  };
+});
+for (const [rg, id] of Object.entries(SINGLE)) {
   const label = corpsMeta.find((c) => c.k === rg)?.label || rg;
-  wards.push({ type: 'Feature', properties: { rg, ward: label, area: areaByNorm.get(norm(label)) || '', osm: CORP_REL[rg] }, geometry: roundGeom(top.get(CORP_REL[rg]).geometry) });
-  console.log(`  ${rg} has no wards in OSM; it stands as one`);
+  wards.push({ type: 'Feature', properties: { rg, ward: label, area: areaByNorm.get(norm(rg)) || '', osm: id }, geometry: roundGeom(zoneGeo.get(id).geometry) });
 }
 wards.sort((a, b) => a.properties.rg.localeCompare(b.properties.rg) || a.properties.ward.localeCompare(b.properties.ward));
-
-console.log(`  ${wards.length} wards inside the ${Object.keys(CORP_REL).length} zones`);
-if (missing.length) console.log(`  ${missing.length} not returned by Nominatim: ${missing.join(', ')}`);
-if (outside.length) console.log(`  ${outside.length} outside the corporations, dropped: ${outside.join(', ')}`);
-const byRg = {};
-wards.forEach((w) => { byRg[w.properties.rg] = (byRg[w.properties.rg] || 0) + 1; });
-console.log('  wards per corporation:', JSON.stringify(byRg));
-console.log(`  ${wards.filter((w) => w.properties.area).length} ward names match an entry area`);
+console.log(`  ${wards.length} zones across ${Object.keys(corpPolys).length} regions`);
 
 const corps = read('corporations.json');
 
@@ -306,8 +242,8 @@ write('mask.json', {
 
 write('corporation-areas.json', {
   type: 'FeatureCollection',
-  features: Object.entries(CORP_REL).map(([rg, id]) => ({
-    type: 'Feature', properties: { rg }, geometry: roundGeom(top.get(id).geometry),
+  features: Object.entries(corpPolys).map(([rg, polys]) => ({
+    type: 'Feature', properties: { rg }, geometry: roundGeom(asGeom(polys)),
   })),
 });
 
@@ -319,7 +255,7 @@ write('city.json', {
   ...city,
   box: [+S.toFixed(5), +W.toFixed(5), +N.toFixed(5), +E.toFixed(5)],
   gba_km2: Math.round(km2(cityPolys)),
-  source: `OpenStreetMap relations ${CITY_RELS.join(' + ')} (Mumbai City and Mumbai Suburban districts, the BMC area, Navi Mumbai, Thane and Mira-Bhayandar municipal corporations), fetched ${new Date().toISOString().slice(0, 10)}`,
+  source: `OpenStreetMap relations ${CITY_RELS.join(' + ')} (Greater Chennai Corporation, and the Tambaram and Avadi taluks standing in for their corporations), fetched ${new Date().toISOString().slice(0, 10)}`,
 });
 /* Hand-edited (the hue families live here), so it stays readable. */
 write('corporations.json', corps.map((c) => ({ ...c, km2: Math.round(km2(corpPolys[c.k])) })), true);

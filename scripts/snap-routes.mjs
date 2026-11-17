@@ -9,13 +9,13 @@
  * snapped line yet (or all of them with --all). Rows on hold are skipped, and a
  * route that still cannot be drawn is left as a pin with no line.
  *
- *   node scripts/snap-routes.mjs [sources/routes/wellness-map-routes-v2.csv] [--all]
+ *   node scripts/snap-routes.mjs [sources/routes/chennai-routes.csv] [--all]
  */
 import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const CSV = path.resolve(ROOT, process.argv.slice(2).find((a) => !a.startsWith('--')) || 'sources/routes/wellness-map-routes-v2.csv');
+const CSV = path.resolve(ROOT, process.argv.slice(2).find((a) => !a.startsWith('--')) || 'sources/routes/chennai-routes.csv');
 /* Without --all, only routes with no snapped line yet are touched. */
 const ALL = process.argv.includes('--all');
 const ROUTES = path.join(ROOT, 'src/data/routes.json');

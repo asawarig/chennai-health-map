@@ -1,5 +1,5 @@
 /* Open Location Code ("plus code") decoding, enough to turn the short codes
- * listings print ("5XVC+3VJ, Thane") into a point: a short code is recovered
+ * listings print ("5XVC+3VJ, Adyar") into a point: a short code is recovered
  * against a nearby reference point, then decoded to the middle of its cell.
  * After github.com/google/open-location-code (Apache 2.0).
  */

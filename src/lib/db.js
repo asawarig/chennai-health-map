@@ -16,8 +16,8 @@ import ROUTES from '../data/routes.json';
 import ICONS from '../data/icons.json';
 import LABELS from '../data/labels.json';
 
-/* Two reference layers that are not entries: the Mumbai Metro alignment and
-   Mumbai's public parks, gardens and maidans from OpenStreetMap. See
+/* Two reference layers that are not entries: the Chennai Metro alignment and
+   Chennai's public parks, gardens and maidans from OpenStreetMap. See
    scripts/osm-metro.mjs and scripts/osm-parks.mjs. */
 import METRO from '../data/metro.json';
 import PARKS_RAW from '../data/parks.json';
@@ -297,7 +297,7 @@ COUNTS.unpinned = COUNTS.total - COUNTS.mapped - COUNTS.outside;
    describing. The two below are what a reader would count for themselves, and
    are what the page titles and meta descriptions claim:
 
-     onMap   pins on the map browsing all of Mumbai, counted the way the map
+     onMap   pins on the map browsing all of Chennai, counted the way the map
              counts them: coordinates, inside the city, and in a category the
              map draws. Anything looser disagrees with the number the list
              header shows — it was 14 out, counting six Communities pins the map

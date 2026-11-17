@@ -1,9 +1,9 @@
-/* Mumbai's zone keys (src/data/corporations.json) and the zone a point falls
- * in (src/data/corporation-areas.json), shared by the ingest scripts.
+/* Chennai's region keys (src/data/corporations.json) and the region a point
+ * falls in (src/data/corporation-areas.json), shared by the ingest scripts.
  *
- * A sheet can leave `rg` blank, or write it the way people say it ("SoBo",
- * "Western Suburbs"); RG_ALIAS folds the common spellings onto a key, and
- * zoneAt() fills a blank from the pin itself.
+ * A sheet can leave `rg` blank, or write it the way people say it ("North
+ * Madras", "OMR", a zone name); RG_ALIAS folds the common spellings onto a key,
+ * and zoneAt() fills a blank from the pin itself.
  */
 import fs from 'node:fs';
 
@@ -12,15 +12,11 @@ const read = (f) => JSON.parse(fs.readFileSync(new URL(`../src/data/${f}`, impor
 export const ZONE_KEYS = new Set(read('corporations.json').map((c) => c.k));
 
 export const RG_ALIAS = {
-  'South Mumbai': 'South', SoBo: 'South', 'Island City': 'South', 'Zone 1': 'South',
-  'Central Mumbai': 'Central', 'Zone 2': 'Central',
-  'Western Suburbs': 'West', 'West Mumbai': 'West', 'Zone 3': 'West',
-  'Northern Western Suburbs': 'NorthWest', 'North-west': 'NorthWest', 'North West': 'NorthWest', 'Northwest': 'NorthWest', 'Zone 4': 'NorthWest',
-  'Eastern Suburbs': 'East', 'East Mumbai': 'East', 'Zone 5': 'East',
-  Thane: 'Thane', TMC: 'Thane', 'Zone 8': 'Thane',
-  'Mira-Bhayandar': 'MiraBhayandar', 'Mira Bhayandar': 'MiraBhayandar', MBMC: 'MiraBhayandar', 'Zone 9': 'MiraBhayandar',
-  'Navi Mumbai': 'NaviMumbai', NMMC: 'NaviMumbai', 'Zone 7': 'NaviMumbai',
-  'Northern Eastern Suburbs': 'NorthEast', 'North-east': 'NorthEast', 'North East': 'NorthEast', 'Northeast': 'NorthEast', 'Zone 6': 'NorthEast',
+  'North Chennai': 'North', 'North Madras': 'North', Tiruvottiyur: 'North', Manali: 'North', Madhavaram: 'North', Tondiarpet: 'North', Royapuram: 'North',
+  'Central Chennai': 'Central', 'Thiru. Vi. Ka. Nagar': 'Central', 'Anna Nagar': 'Central', Teynampet: 'Central', Kodambakkam: 'Central',
+  'West Chennai': 'West', Ambattur: 'West', Valasaravakkam: 'West', Alandur: 'West',
+  'South Chennai': 'South', Adyar: 'South', Perungudi: 'South', Sholinganallur: 'South', OMR: 'South', ECR: 'South',
+  'Tambaram Corporation': 'Tambaram', TCMC: 'Tambaram', 'Avadi Corporation': 'Avadi', ACMC: 'Avadi',
 };
 
 const areas = read('corporation-areas.json').features;
