@@ -49,7 +49,7 @@ const ZONES = [
   { id: 7876675, n: 15, name: 'Sholinganallur', rg: 'South' },
 ];
 /* Regions that are one relation each, standing as their own single "ward". */
-const SINGLE = { Tambaram: 10326121, Avadi: 21492307 };
+const SINGLE = { Tambaram: [10326121, 10326417], Avadi: [21492307] };
 
 /* What each zone is known for, so "Zone 9" reads as somewhere. */
 const ZONE_AREAS = {
@@ -168,8 +168,8 @@ const km2 = (polys) => polys.reduce((a, p) => a + ringKm2(p[0]) - p.slice(1).red
 
 /* ---------- fetch ---------- */
 console.log('Fetching zone polygons from Nominatim…');
-const zoneGeo = await lookup([...ZONES.map((z) => z.id), ...Object.values(SINGLE)], 0.00002);
-for (const id of [...ZONES.map((z) => z.id), ...Object.values(SINGLE)]) {
+const zoneGeo = await lookup([...ZONES.map((z) => z.id), ...Object.values(SINGLE).flat()], 0.00002);
+for (const id of [...ZONES.map((z) => z.id), ...Object.values(SINGLE).flat()]) {
   if (!zoneGeo.has(id)) throw new Error(`Nominatim did not return relation ${id}`);
 }
 
@@ -195,7 +195,9 @@ for (const z of ZONES) (corpPolys[z.rg] ||= []).push(polysOf(zoneGeo.get(z.id).g
 for (const rg of Object.keys(corpPolys)) {
   corpPolys[rg] = union(...corpPolys[rg]).filter((p) => ringKm2(p[0]) > 0.01);
 }
-for (const [rg, id] of Object.entries(SINGLE)) corpPolys[rg] = polysOf(zoneGeo.get(id).geometry);
+for (const [rg, ids] of Object.entries(SINGLE)) {
+  corpPolys[rg] = union(...ids.map((id) => polysOf(zoneGeo.get(id).geometry))).filter((p) => ringKm2(p[0]) > 0.01);
+}
 const asGeom = (polys) => (polys.length === 1 ? { type: 'Polygon', coordinates: polys[0] } : { type: 'MultiPolygon', coordinates: polys });
 
 const corpsMeta = read('corporations.json');
@@ -212,9 +214,9 @@ const wards = ZONES.map((z) => {
     geometry: roundGeom(zoneGeo.get(z.id).geometry),
   };
 });
-for (const [rg, id] of Object.entries(SINGLE)) {
+for (const [rg, ids] of Object.entries(SINGLE)) {
   const label = corpsMeta.find((c) => c.k === rg)?.label || rg;
-  wards.push({ type: 'Feature', properties: { rg, ward: label, area: areaByNorm.get(norm(rg)) || '', osm: id }, geometry: roundGeom(zoneGeo.get(id).geometry) });
+  wards.push({ type: 'Feature', properties: { rg, ward: label, area: areaByNorm.get(norm(rg)) || '', osm: ids[0] }, geometry: roundGeom(asGeom(corpPolys[rg])) });
 }
 wards.sort((a, b) => a.properties.rg.localeCompare(b.properties.rg) || a.properties.ward.localeCompare(b.properties.ward));
 console.log(`  ${wards.length} zones across ${Object.keys(corpPolys).length} regions`);

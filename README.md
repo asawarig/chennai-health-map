@@ -14,7 +14,8 @@ describes the code accurately; where it names Bengaluru's data, read Chennai's.
 **Changed**
 
 - **City outline**: Greater Chennai Corporation (OSM relation 1766358) joined
-  with the Tambaram taluk (10326121) and the Avadi taluk (21492307). OSM does
+  with the Tambaram taluk (10326121), the Pallavaram taluk (10326417:
+  Pallavaram, Chromepet, Pammal) and the Avadi taluk (21492307). OSM does
   not map Tambaram or Avadi City Municipal Corporation as areas of their own,
   so their taluks stand in; each is a little larger than its corporation. The
   OSM areas every build script uses are in `scripts/city.mjs`.
@@ -41,6 +42,23 @@ describes the code accurately; where it names Bengaluru's data, read Chennai's.
   `sources/entries/research/*.json` (see `research/BRIEF.md` for the rules
   they were gathered under) and the OSM sweep `sources/entries/osm-places.csv`.
   New ids are `CHN-0001…`.
+- **Google check before the merge**: `node --env-file=.env scripts/places-enrich.mjs`
+  resolves every researched venue on Google Places (key in `.env` as
+  `GOOGLE_MAPS_KEY`, never committed) and keeps only those above 4.0 with 20+
+  reviews, with Google's pin and Maps link. It writes
+  `sources/entries/enriched/*.json`, which is what the merge reads, and lists
+  every drop and why in `reports/places-enrich.csv`. Research passes can find
+  candidates the same way with `scripts/places-discover.mjs`. The full build:
+
+  ```bash
+  node --env-file=.env scripts/places-enrich.mjs
+  node scripts/merge-places.mjs sources/entries/enriched/*.json sources/entries/osm-places.csv
+  node scripts/ingest-entries.mjs
+  node scripts/ingest-routes.mjs
+  node scripts/snap-routes.mjs
+  node scripts/ingest-perks.mjs
+  node scripts/build-region.mjs
+  ```
 - **Routes**: `sources/routes/chennai-routes.csv`, ids `CHN-RT-01…`,
   ingested by `scripts/ingest-routes.mjs` and traced by `scripts/snap-routes.mjs`.
 - All the on-page text says Chennai; the Webflow mount path is

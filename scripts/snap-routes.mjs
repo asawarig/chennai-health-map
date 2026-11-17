@@ -597,11 +597,17 @@ async function main() {
       if (id === 'BLR-RT-14' && cubbon) {
         result = { coords: orientToStart(cubbon.geometry.coordinates, start), source: 'reuse:BLR-001' };
       }
-      /* A lake or park loop given only its gate: ring the water, or stitch the footways. */
-      if (!result && loop && !wps.length) {
+      /* A lake or park loop: ring the water, or stitch the footways. This used
+         to run only for loops given no waypoints, and Chennai's sheet gives
+         every loop a few vertices of its OSM path, so each one went to OSRM,
+         which routes the street network and drew park loops out along the
+         roads at up to 8x their length. The path search runs first for every
+         walking loop now; the waypoints are only the fallback's. */
+      if (!result && loop && !cycle) {
         result = await loopFromFootways(+row.start_lat, +row.start_lon, {
-          radius: 700, expectKm, park: /park loop/i.test(row.s || ''),
+          radius: 700, expectKm, park: /park|poonga|garden/i.test(`${row.s || ''} ${row.n || ''}`),
         });
+        if (result) result.coords = orientToStart(result.coords, start);
       }
 
       if (!result) {

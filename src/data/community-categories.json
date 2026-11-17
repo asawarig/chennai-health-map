@@ -1,1 +1,123 @@
-{"categories":["Running","Cycling","Hiking & Outdoors","Climbing","Sports & Games","Queer Communities","Social & Creative"],"communities":[]}
+{
+  "categories": [
+    "Running",
+    "Cycling",
+    "Hiking & Outdoors",
+    "Climbing",
+    "Sports & Games",
+    "Queer Communities",
+    "Social & Creative"
+  ],
+  "communities": [
+    {
+      "category": "Running",
+      "name": "Bat Club",
+      "url": "https://batclub.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Bessie Flyers",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Chromepet Cheetahs",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Marina Minnals",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Mogappair Fitness Circle",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Pettai Rappers",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Pillar Pacers",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — T. Nagar Trendsetters",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Chennai Runners — Tower Twisters",
+      "url": "https://chennairunners.in"
+    },
+    {
+      "category": "Running",
+      "name": "Cloka Club",
+      "url": "https://www.instagram.com/cloka.club/"
+    },
+    {
+      "category": "Running",
+      "name": "Club Ahora",
+      "url": "https://www.instagram.com/theahoraclub/"
+    },
+    {
+      "category": "Running",
+      "name": "CORSO",
+      "url": "https://www.instagram.com/_corsoclub/"
+    },
+    {
+      "category": "Running",
+      "name": "Sunline Circuit Run Club",
+      "url": "https://www.instagram.com/sunlinecircuit/"
+    },
+    {
+      "category": "Running",
+      "name": "VAMOS Run Club",
+      "url": "https://www.instagram.com/vamos_run_club/"
+    },
+    {
+      "category": "Running",
+      "name": "XCETRA",
+      "url": "https://www.instagram.com/xcetra.club/"
+    },
+    {
+      "category": "Cycling",
+      "name": "Chennai Cyclists",
+      "url": "https://www.chennaicyclists.com"
+    },
+    {
+      "category": "Hiking & Outdoors",
+      "name": "Chennai Adventure Club",
+      "url": "https://www.instagram.com/chennaiadventureclub/"
+    },
+    {
+      "category": "Sports & Games",
+      "name": "Chennai Chess Club",
+      "url": "https://www.instagram.com/chennaichessclub/"
+    },
+    {
+      "category": "Sports & Games",
+      "name": "The Glo Klub",
+      "url": "https://www.instagram.com/thegloklub/"
+    },
+    {
+      "category": "Queer Communities",
+      "name": "Orinam",
+      "url": "https://orinam.net"
+    },
+    {
+      "category": "Social & Creative",
+      "name": "Madras Book Club",
+      "url": "https://www.instagram.com/madrasbookclub/"
+    }
+  ]
+}

@@ -270,6 +270,9 @@ for (const r of merged) {
    reused its company's head-office pin: look it up again from the address. */
 for (const r of merged) {
   if (r.lat == null || r.out) continue;
+  /* Not for a pin Google resolved for this exact place (places-enrich.mjs):
+     that is the place itself, and the neighbourhood match is the fuzzier of the two. */
+  if (r.google_place_id) continue;
   const near = hoodPt(r.a);
   if (near && metres([r.lon, r.lat], near) > 5000) {
     r.notes = [r.notes, `source pin ${r.lat},${r.lon} was ${(metres([r.lon, r.lat], near) / 1000).toFixed(1)} km from ${r.a}; re-looked up`].filter(Boolean).join('; ');
