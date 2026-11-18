@@ -73,7 +73,7 @@ import COMMUNITY_CATEGORIES from '../data/community-categories.json';
 import THEMED_DAYS from '../data/themed-days.json';
 import DAY_ROUTES from '../data/themed-day-routes.json';
 import { SUBCATEGORIES } from '../lib/subcategories.js';
-import { glStyle, setTone, setSelectedArea, selectedRoadLayers, LABEL_LAYERS, RASTER, setZones, POSTER, setGreenRoads, BASEMAP, REGION_BBOX } from '../lib/basemap.js';
+import { glStyle, setTone, setSelectedArea, selectedRoadLayers, LABEL_LAYERS, RASTER, setZones, POSTER, setGreenRoads, setGreenAreas, BASEMAP, REGION_BBOX } from '../lib/basemap.js';
 import { addOutsideVeil } from '../lib/outside-veil.js';
 import { addRoadFillets, setRoadRegions } from '../lib/road-fillets.js';
 import { INTENTS, MAP_INTENTS, INTENT_BY_K, intentMeta, iconUrl, pinColour, SUGGEST_FORM } from '../lib/intents.js';
@@ -3220,6 +3220,12 @@ try {
      edges and green paths there. Stamped with the build, as details.json is,
      so Webflow's four-hour cache cannot hand back a previous deploy's file. Low priority and not waited on: until they
      arrive, roads have no edge and paths are grey everywhere. */
+  /* The parks and other green areas, filled at every zoom (the tiles leave
+     small parks out until close in). Asked for first: it is the ground. */
+  fetch(`${DATA_BASE}green-areas.json${DATA_V}`)
+    .then((r) => r.json())
+    .then((fc) => setGreenAreas(map, fc))
+    .catch((e) => console.warn('Green areas:', e.message));
   fetch(`${DATA_BASE}green-roads.json${DATA_V}`, { priority: 'low' })
     .then((r) => r.json())
     .then((fc) => setGreenRoads(map, fc, 'far'))

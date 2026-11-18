@@ -458,6 +458,17 @@ function paperRoads() {
    paths stay grey, so no green line ever lies on grey ground. Empty until
    that file arrives. */
 const EMPTY_LINES = { type: 'FeatureCollection', features: [] };
+/* The green areas from OSM (scripts/osm-green-areas.mjs →
+   public/data/green-areas.json), filled at every zoom. The tiles' own greens
+   leave small parks out until about zoom 14, so a park was grey from the city
+   view and only turned green close in. Empty until the map fetches the file. */
+let greenAreaData = EMPTY_LINES;
+export function setGreenAreas(glMap, data) {
+  greenAreaData = data;
+  const src = glMap.getSource('green-areas');
+  if (src) src.setData(data);
+  else glMap.once('style.load', () => glMap.getSource('green-areas')?.setData(data));
+}
 let greenRoadData = EMPTY_LINES;
 /* How far the green edge shows past each side of a road. */
 const GREEN_EDGE_WIDTH = 1;
@@ -515,6 +526,7 @@ function paperStyle(regions) {
     sources: {
       omt: { type: 'vector', url: 'https://tiles.openfreemap.org/planet', attribution: VECTOR_CREDIT },
       'green-roads': { type: 'geojson', data: greenRoadData },
+      'green-areas': { type: 'geojson', data: greenAreaData },
       outside: { type: 'geojson', data: mask },
       beyond: { type: 'geojson', data: BEYOND },
       ...ownSources(),
@@ -530,6 +542,10 @@ function paperStyle(regions) {
         filter: inClass('cemetery', 'pitch', 'stadium', 'track', 'playground', 'theme_park', 'zoo'),
       }),
       flatFill('wood', 'landcover', PAPER_WOOD, { filter: inClass('wood') }),
+      /* Every OSM green area, at every zoom: the tiles drop small parks below
+         about zoom 14. Same colour as the tiles' greens, so where both draw a
+         park it reads as one fill. */
+      { id: 'green-areas', type: 'fill', source: 'green-areas', paint: { 'fill-color': PAPER_PARK } },
       /* Parks over the woods inside them, so a park reads as one place. */
       flatFill('park', 'landcover', PAPER_PARK, { filter: PARK_FILTER }),
       flatFill('protected', 'park', PAPER_PARK),
@@ -543,6 +559,7 @@ function paperStyle(regions) {
         filter: inClass('cemetery', 'pitch', 'stadium', 'track', 'playground', 'theme_park', 'zoo'),
       }, EDGE_GREEN),
       inkLine('protected-edge', 'park', 0.8, {}, EDGE_GREEN),
+      { id: 'green-areas-edge', type: 'line', source: 'green-areas', paint: { 'line-color': EDGE_GREEN, 'line-width': 0.8 } },
       inkLine('waterway', 'waterway', byZoom(12, 1, 18, 5), { filter: notTunnel }, EDGE_BLUE),
 
       /* Corporation colours, when on, wash over the ground. */

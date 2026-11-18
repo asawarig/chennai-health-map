@@ -18,6 +18,11 @@
  * to about 2 m and anything under MIN_AREA is dropped, which keeps the file
  * small without losing any park a road could run through.
  *
+ * Also writes public/data/green-areas.json: the green areas themselves, which
+ * the basemap fills at every zoom. OpenFreeMap's tiles leave small parks out
+ * until about zoom 14, so without these a park was plain grey at the city and
+ * district views and turned green only close in.
+ *
  * Served as a static file rather than imported, so it does not weigh down the
  * page's script; the map fetches it after the style is up.
  */
@@ -27,7 +32,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 const UA = 'chennai-wellness-map/1.0 (green areas build script)';
 /* south, west, north, east: the city and a margin, as the map's grid. */
 const BBOX = '12.80,79.95,13.30,80.35';
-const MIN_AREA = 2000; // m²
+const MIN_AREA = 500; // m², the same floor as the parks layer (osm-parks.mjs), so every park pin has its green
 const TOLERANCE = 0.00002; // degrees, about 2 m
 const OUT = 'public/data/green-roads.json';
 
@@ -252,5 +257,9 @@ const write = (file, keep) => writeFileSync(file, JSON.stringify({
 }));
 write(OUT, (c) => FAR.has(c));
 write(OUT.replace('.json', '-near.json'), (c) => !FAR.has(c));
+writeFileSync('public/data/green-areas.json', JSON.stringify({
+  type: 'FeatureCollection',
+  features: polygons.map((p) => ({ type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [p[0]] } })),
+}));
 console.log(`${polygons.length} green areas, ${roads.length} roads touching them, `
   + `${pieces.length} pieces inside → ${OUT}`);

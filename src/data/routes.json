@@ -159,64 +159,6 @@
     },
     {
       "type": "Feature",
-      "id": "CHN-RT-07",
-      "properties": {
-        "id": "CHN-RT-07",
-        "name": "Kotturpuram Tree Park loop",
-        "area": "Kotturpuram",
-        "g": "run",
-        "km": 1.07,
-        "loop": true,
-        "geom_type": "loop",
-        "start": [
-          13.024101,
-          80.243215
-        ],
-        "end": [
-          13.024101,
-          80.243215
-        ],
-        "mode": "Run",
-        "provisional": false,
-        "snapped_km": 0.83,
-        "source": "overpass:park-perimeter"
-      },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            80.2437932,
-            13.0239772
-          ],
-          [
-            80.2444349,
-            13.02469
-          ],
-          [
-            80.2453196,
-            13.0236952
-          ],
-          [
-            80.2467674,
-            13.0225095
-          ],
-          [
-            80.246708,
-            13.0224024
-          ],
-          [
-            80.2453946,
-            13.0232221
-          ],
-          [
-            80.2437932,
-            13.0239772
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
       "id": "CHN-RT-08",
       "properties": {
         "id": "CHN-RT-08",
@@ -345,64 +287,6 @@
     },
     {
       "type": "Feature",
-      "id": "CHN-RT-10",
-      "properties": {
-        "id": "CHN-RT-10",
-        "name": "Panagal Park loop",
-        "area": "T. Nagar",
-        "g": "run",
-        "km": 0.54,
-        "loop": true,
-        "geom_type": "loop",
-        "start": [
-          13.040761,
-          80.233204
-        ],
-        "end": [
-          13.040761,
-          80.233204
-        ],
-        "mode": "Run",
-        "provisional": false,
-        "snapped_km": 0.53,
-        "source": "overpass:park-perimeter"
-      },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            80.2332037,
-            13.0407614
-          ],
-          [
-            80.2322953,
-            13.0409607
-          ],
-          [
-            80.2325545,
-            13.0420893
-          ],
-          [
-            80.2338254,
-            13.0418229
-          ],
-          [
-            80.2337494,
-            13.0413592
-          ],
-          [
-            80.2334656,
-            13.0414326
-          ],
-          [
-            80.2332037,
-            13.0407614
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
       "id": "CHN-RT-15",
       "properties": {
         "id": "CHN-RT-15",
@@ -455,56 +339,6 @@
           [
             80.20462,
             13.04081
-          ]
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "id": "CHN-RT-20",
-      "properties": {
-        "id": "CHN-RT-20",
-        "name": "Napier Park loop",
-        "area": "Chintadripet",
-        "g": "run",
-        "km": 0.46,
-        "loop": true,
-        "geom_type": "loop",
-        "start": [
-          13.074219,
-          80.273049
-        ],
-        "end": [
-          13.074219,
-          80.273049
-        ],
-        "mode": "Run",
-        "provisional": false,
-        "snapped_km": 0.5,
-        "source": "overpass:park-perimeter"
-      },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [
-            80.273061,
-            13.0743069
-          ],
-          [
-            80.272444,
-            13.072785
-          ],
-          [
-            80.273487,
-            13.0726499
-          ],
-          [
-            80.2734465,
-            13.0739363
-          ],
-          [
-            80.273061,
-            13.0743069
           ]
         ]
       }

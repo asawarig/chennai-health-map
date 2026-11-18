@@ -16,6 +16,9 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CSV = path.resolve(ROOT, process.argv.slice(2).find((a) => !a.startsWith('--')) || 'sources/routes/chennai-routes.csv');
+/* Routes whose circuit really runs a park's boundary wall, so the park's
+   outline may stand in for a path no one has mapped. None in Chennai yet. */
+const PERIMETER_OK = new Set([]);
 /* Without --all, only routes with no snapped line yet are touched. */
 const ALL = process.argv.includes('--all');
 const ROUTES = path.join(ROOT, 'src/data/routes.json');
@@ -398,7 +401,7 @@ function ringFromSegments(segments, start, plausible, expectKm, source) {
  * not have. Ask for it directly, and when it is missing say so by falling back
  * to the shoreline rather than inventing a route.
  */
-async function loopFromFootways(lat, lon, { radius = 700, expectKm = 0, park = false } = {}) {
+async function loopFromFootways(lat, lon, { radius = 700, expectKm = 0, park = false, allowPerimeter = false } = {}) {
   const start = [lon, lat];
   /* A park loop does not go looking for water. Lalbagh has a tank in one
      corner, and ringing it produced a closed, plausible-looking 3.07 km line
@@ -455,14 +458,18 @@ async function loopFromFootways(lat, lon, { radius = 700, expectKm = 0, park = f
     await pathsAround(lat, lon, reach, types),
     start, plausible, expectKm, 'overpass:footways-stitched',
   );
-  if (stitched || !park) return stitched;
+  if (stitched || !park || !allowPerimeter) return stitched;
 
   /* Lalbagh's drives are mapped, and they still would not stitch into a ring —
      the gates, the glasshouse forecourt and the lake path break it in enough
      places that no closed line comes out. The park's own boundary does close,
      at 4.24 km against the 4.0 the sheet states, and it is the shape of the
      circuit because the circuit runs the wall. Labelled for what it is, the
-     way the shoreline fallback above is. */
+     way the shoreline fallback above is.
+
+     Opt-in only (PERIMETER_OK): a park's outline is a walk only where the
+     circuit really runs the wall. In Chennai it drew Kotturpuram Tree Park
+     along the Adyar and Napier Park along the Cooum, where there is no path. */
   const wall = await parkRingNear(lat, lon, reach);
   if (wall && plausible(lengthM(wall)) && touchesStart(wall, start)) {
     return { coords: simplify(orientToStart(wall, start), 8), source: 'overpass:park-perimeter' };
@@ -606,6 +613,7 @@ async function main() {
       if (!result && loop && !cycle) {
         result = await loopFromFootways(+row.start_lat, +row.start_lon, {
           radius: 700, expectKm, park: /park|poonga|garden/i.test(`${row.s || ''} ${row.n || ''}`),
+          allowPerimeter: PERIMETER_OK.has(id),
         });
         if (result) result.coords = orientToStart(result.coords, start);
       }
