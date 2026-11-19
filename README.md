@@ -60,11 +60,16 @@ describes the code accurately; where it names Bengaluru's data, read Chennai's.
   node scripts/ingest-entries.mjs
   node scripts/ingest-routes.mjs
   node scripts/snap-routes.mjs
+  node scripts/osm-way-routes.mjs
   node scripts/ingest-perks.mjs
   node scripts/build-region.mjs
   ```
 - **Routes**: `sources/routes/chennai-routes.csv`, ids `CHN-RT-01…`,
   ingested by `scripts/ingest-routes.mjs` and traced by `scripts/snap-routes.mjs`.
+  Routes the tracer gets wrong are drawn from hand-picked OSM ways by
+  `scripts/osm-way-routes.mjs` (sheet status "Traced from OSM ways"): Tower
+  Park, the Boat Club loop, Cathedral Road, the Marina loop, ICF playground,
+  the Velachery MRTS road, the Velachery–Tambaram road and Poes Garden.
 - All the on-page text says Chennai; the Webflow mount path is
   `/health-map/chennai`.
 - **The logos say "Be well, Chennai"** (`public/be-well-logo*.svg`). "Be Well,"
@@ -587,6 +592,7 @@ scripts/ingest-perks.mjs     Plum Perks CSV -> perks.json
 scripts/ingest-routes.mjs    routes CSV -> entries + provisional lines
 scripts/ingest-running-routes.mjs  running-routes pack -> entries + lines
 scripts/snap-routes.mjs      provisional lines -> OSM / OSRM traces
+scripts/osm-way-routes.mjs   hand-picked OSM ways -> route lines the tracer gets wrong
 scripts/kml-to-geojson.mjs   the two KML sources -> metro.json and parks.json
 scripts/osm-boundaries.mjs   OpenStreetMap -> zones, corporation areas, mask, city box
 scripts/osm-metro.mjs        OpenStreetMap -> metro.json (running lines only)
