@@ -84,10 +84,13 @@ describes the code accurately; where it names Bengaluru's data, read Chennai's.
 
 - Plum Perks partner brands and the online Plum events, which are not
   tied to a city.
-- **All the other artwork is a placeholder**: the hero, the stamp and
-  vignettes are still Bengaluru's, and the share image
-  `public/og-be-well-chennai.jpg` is still **Mumbai's picture** (it says
-  "Be Well, Mumbai") under a Chennai filename. Replace it before launch.
+- **The share image** `public/og-be-well-chennai.jpg` is made from this map
+  by `node scripts/og-image.mjs http://localhost:4321/` (dev server running):
+  the Chennai coast at Marina and Mylapore, blurred, under the Plum logo,
+  "Be Well, Chennai" and "ft. Plum Perks". Re-run it when the map's look
+  changes; a view can be passed as `lon,lat,zoom`.
+- **The other artwork is a placeholder**: the hero, the stamp and the
+  vignettes are still Bengaluru's.
 - The Plum HQ pin is hidden, since it is in Bengaluru (`PLUM_HQ` in
   `src/scripts/wellness-map.js`).
 - The disclaimers still name the courts at Bengaluru, since that is
