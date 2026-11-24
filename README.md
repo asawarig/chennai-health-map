@@ -69,7 +69,10 @@ describes the code accurately; where it names Bengaluru's data, read Chennai's.
   Routes the tracer gets wrong are drawn from hand-picked OSM ways by
   `scripts/osm-way-routes.mjs` (sheet status "Traced from OSM ways"): Tower
   Park, the Boat Club loop, Cathedral Road, the Marina loop, ICF playground,
-  the Velachery MRTS road, the Velachery–Tambaram road and Poes Garden.
+  the Velachery MRTS road, the Velachery–Tambaram road and Poes Garden. The
+  same script draws `sources/routes/traced-lines.geojson`: 13 runs (CHN-RT-50…62)
+  traced from the owner's Strava segment screenshots, georeferenced and routed
+  on foot along OSM paths (sheet status "Traced from Strava segment").
 - All the on-page text says Chennai; the Webflow mount path is
   `/health-map/chennai`.
 - **The logos say "Be well, Chennai"** (`public/be-well-logo*.svg`). "Be Well,"

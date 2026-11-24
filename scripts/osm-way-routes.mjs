@@ -159,9 +159,19 @@ function build(id, steps, ways) {
 const ways = await fetchWays([...new Set(Object.values(RECIPES).flat().map((s) => s[0]).filter((w) => w !== 'pt'))]);
 const routes = JSON.parse(fs.readFileSync(ROUTES, 'utf8'));
 const entries = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/data/entries.json'), 'utf8'));
-for (const [id, steps] of Object.entries(RECIPES)) {
-  if (!steps.length) continue;
-  const pts = build(id, steps, ways);
+/* Lines traced by hand from the owner's screenshots of Strava running
+   segments: each was georeferenced, then routed on foot through waypoints
+   every ~300 m along the trace (routing.openstreetmap.de), so it follows OSM
+   paths. They live in a file of their own, since there are no way ids. */
+const TRACED = path.join(ROOT, 'sources/routes/traced-lines.geojson');
+const traced = fs.existsSync(TRACED) ? JSON.parse(fs.readFileSync(TRACED, 'utf8')).features : [];
+for (const t of traced) if (t.properties.loop) LOOPS.add(t.properties.id);
+const jobs = [
+  ...Object.entries(RECIPES).filter(([, steps]) => steps.length).map(([id, steps]) => [id, () => build(id, steps, ways), 'osm:ways']),
+  ...traced.map((t) => [t.properties.id, () => t.geometry.coordinates.map(([lo, la]) => [la, lo]), 'osrm-foot:traced']),
+];
+for (const [id, make, source] of jobs) {
+  const pts = make();
   /* A circuit ends where it began. */
   const closing = dist(pts.at(-1), pts[0]);
   if (closing > 1 && closing < 150 && LOOPS.has(id)) pts.push(pts[0]);
@@ -182,6 +192,6 @@ for (const [id, steps] of Object.entries(RECIPES)) {
     routes.features.push(f);
   }
   f.geometry = { type: 'LineString', coordinates: pts.map(([la, lo]) => [r6(lo), r6(la)]) };
-  f.properties = { ...f.properties, source: 'osm:ways', provisional: false, snapped_km: +km.toFixed(2) };
+  f.properties = { ...f.properties, source, provisional: false, snapped_km: +km.toFixed(2) };
 }
 if (!PRINT) fs.writeFileSync(ROUTES, `${JSON.stringify(routes, null, 2)}\n`);
